@@ -4,6 +4,7 @@ print('test')
 # added comment
 # justin's contribution!
 
+
 class Neuron:
     def __init__(self, value):
         self.value = value
@@ -29,5 +30,6 @@ class Brain:
 
 
 test = Brain(4, [784, 20, 20, 10])
+
 
 
