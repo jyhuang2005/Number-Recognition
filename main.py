@@ -2,6 +2,7 @@ print('Hello World')
 print('test')
 
 # added comment
+# justin's contribution!
 
 class Neuron:
     def __init__(self, value):
