@@ -1,3 +1,6 @@
+import idx2numpy
+
+
 import layer as la
 import neuron as n
 
