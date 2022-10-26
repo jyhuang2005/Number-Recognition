@@ -1,8 +1,10 @@
 import idx2numpy
-
-
 import layer as la
 import neuron as n
+
+
+train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
+train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
 
 
 l1 = la.Layer(5, val_array=[0, 0.2, 0.5])
