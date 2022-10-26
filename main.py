@@ -17,7 +17,7 @@ def create_grayscale_array():
     return arr
 
 
-l1 = la.Layer(2, val_array=train_images[0])
+l1 = la.Layer(None, val_array=train_images[0])
 l2 = la.Layer(16, l1)
 l3 = la.Layer(16, l2)
 l4 = la.Layer(10, l3)
@@ -25,6 +25,23 @@ l4 = la.Layer(10, l3)
 for i in l1.get_neuron_array():
     for j in i:
         print(j.get_value())
+
+for i in l2.get_neuron_array()[0]:
+    print(i.get_value(), i.get_weights(), i.get_bias())
+
+for i in l3.get_neuron_array()[0]:
+    print(i.get_value(), i.get_weights(), i.get_bias())
+
+for i in l4.get_neuron_array()[0]:
+    print(i.get_value(), i.get_weights(), i.get_bias())
+
+
+for i in range(1, len(train_images)):
+    l1.update(train_images[i])
+    l2.update()
+    l3.update()
+    l4.update()
+    print(i)
 
 for i in l2.get_neuron_array()[0]:
     print(i.get_value(), i.get_weights(), i.get_bias())

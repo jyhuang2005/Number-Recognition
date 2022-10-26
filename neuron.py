@@ -41,7 +41,8 @@ class Neuron:
         if val is None:
             self.value = 0
             for i in range(0, len(self.connects)):
-                self.value += self.connects[i].get_value()*self.weights[i]
+                for j in range(0, len(self.connects[0])):
+                    self.value += self.connects[i][j].get_value()*self.weights[i][j]
             self.value += self.bias
             self.value = sigmoid(self.value)
         else:
