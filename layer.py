@@ -17,3 +17,12 @@ class Layer:
 
     def get_neuron_array(self):
         return self.neuron_array
+
+    def update(self, val_array=None):
+        if val_array is None:
+            for nr in self.neuron_array:
+                nr.update()
+        else:
+            for i in range(0, len(val_array)):
+                self.neuron_array[i].update(val_array[i])
+
