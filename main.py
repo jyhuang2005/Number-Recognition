@@ -2,7 +2,6 @@ import idx2numpy
 import layer as la
 import neuron as n
 
-
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
 
@@ -18,9 +17,10 @@ def create_grayscale_array():
     return arr
 
 
-l1 = la.Layer(5, val_array=[0, 0.2, 0.5])
-l2 = la.Layer(3, l1)
-l3 = la.Layer(5, l2)
+l1 = la.Layer(2, val_array=train_images[0])
+l2 = la.Layer(16, l1)
+l3 = la.Layer(16, l2)
+l4 = la.Layer(10, l3)
 
 for i in l1.get_neuron_array():
     print(i.get_value())
@@ -34,4 +34,9 @@ for i in l3.get_neuron_array():
     print(i.get_value(), i.get_weights(), i.get_bias())
 print(l3.get_num_neurons())
 
+<<<<<<< Updated upstream
 create_grayscale_array()
+=======
+# print(create_grayscale_array())
+
+>>>>>>> Stashed changes
