@@ -23,14 +23,14 @@ l3 = la.Layer(16, l2)
 l4 = la.Layer(10, l3)
 
 for i in l1.get_neuron_array():
-    print(i.get_value())
-print(l1.get_num_neurons())
+    for j in i:
+        print(j.get_value())
 
-for i in l2.get_neuron_array():
+for i in l2.get_neuron_array()[0]:
     print(i.get_value(), i.get_weights(), i.get_bias())
-print(l2.get_num_neurons())
 
-for i in l3.get_neuron_array():
+for i in l3.get_neuron_array()[0]:
     print(i.get_value(), i.get_weights(), i.get_bias())
-print(l3.get_num_neurons())
 
+for i in l4.get_neuron_array()[0]:
+    print(i.get_value(), i.get_weights(), i.get_bias())

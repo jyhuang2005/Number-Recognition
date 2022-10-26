@@ -11,8 +11,9 @@ class Layer:
                 for j in range(0, len(val_array[0])):
                     self.neuron_array[i].append(n.Neuron(value=val_array[i][j]/255))
         if val_array is None:
+            self.neuron_array.append([])
             for i in range(0, num_neurons):
-                self.neuron_array.append(n.Neuron(connects=prev_layer.get_neuron_array()))
+                self.neuron_array[0].append(n.Neuron(connects=prev_layer.get_neuron_array()))
 
     def get_num_neurons(self):
         return self.num_neurons
@@ -22,7 +23,7 @@ class Layer:
 
     def update(self, val_array=None):
         if val_array is None:
-            for nr in self.neuron_array:
+            for nr in self.neuron_array[0]:
                 nr.update()
         else:
             for i in range(0, len(val_array)):

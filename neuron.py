@@ -15,12 +15,16 @@ class Neuron:
         else:
             self.connects = connects
             self.weights = []
-            for i in range(0, len(connects)):
-                self.weights.append(2*r.random() - 1)
+            for i in range(0, len(self.connects)):
+                self.weights.append([])
+                for j in range(0, len(self.connects[0])):
+                    self.weights[i].append(2*r.random() - 1)
             self.bias = 2*r.random() - 1
+            print(self.weights)
 
-            for i in range(0, len(connects)):
-                self.value += self.connects[i].get_value()*self.weights[i]
+            for i in range(0, len(self.connects)):
+                for j in range(0, len(self.connects[0])):
+                    self.value += self.connects[i][j].get_value()*self.weights[i][j]
             self.value += self.bias
             self.value = sigmoid(self.value)
 
