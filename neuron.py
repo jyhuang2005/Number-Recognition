@@ -20,7 +20,7 @@ class Neuron:
             self.bias = 2*r.random() - 1
 
             for i in range(0, len(connects)):
-                self.value += connects[i].get_value()*self.weights[i]
+                self.value += self.connects[i].get_value()*self.weights[i]
             self.value += self.bias
             self.value = sigmoid(self.value)
 
@@ -32,3 +32,13 @@ class Neuron:
 
     def get_bias(self):
         return self.bias
+
+    def update(self, val=None):
+        if val is None:
+            self.value = 0
+            for i in range(0, len(self.connects)):
+                self.value += self.connects[i].get_value()*self.weights[i]
+            self.value += self.bias
+            self.value = sigmoid(self.value)
+        else:
+            self.value = val
