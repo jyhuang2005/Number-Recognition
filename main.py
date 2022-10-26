@@ -34,9 +34,3 @@ for i in l3.get_neuron_array():
     print(i.get_value(), i.get_weights(), i.get_bias())
 print(l3.get_num_neurons())
 
-<<<<<<< Updated upstream
-create_grayscale_array()
-=======
-# print(create_grayscale_array())
-
->>>>>>> Stashed changes
