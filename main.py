@@ -1,4 +1,3 @@
-import math
 import idx2numpy
 import layer as la
 import neuron as n
@@ -19,7 +18,7 @@ def create_grayscale_array():
     return arr
 
 
-def calculate_root_mean_squared_error(actual_values, predicted_values):
+def root_mean_squared_error(actual_values, predicted_values):
     return mean_squared_error(actual_values, predicted_values, squared=False)
 
 
@@ -70,5 +69,5 @@ for i in l4.get_neuron_array()[0]:
         actuals.append(1)
     predicts.append(i.get_value())
 
-print(calculate_root_mean_squared_error(actuals, predicts))
+print(root_mean_squared_error(actuals, predicts))
 
