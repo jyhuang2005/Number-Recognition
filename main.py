@@ -19,8 +19,8 @@ def create_grayscale_array():
     return arr
 
 
-def calculate_root_mean_squared_error(actuals, predicts):
-    return mean_squared_error(actuals, predicts, squared=False)
+def calculate_root_mean_squared_error(actual_values, predicted_values):
+    return mean_squared_error(actual_values, predicted_values, squared=False)
 
 
 l1 = la.Layer(None, val_array=train_images[0])
