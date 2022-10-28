@@ -6,6 +6,10 @@ import random as r
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
+def dsigmoid(x):
+    return np.exp(x)/np.power((1+np.exp(x)), 2)
+
+print(dsigmoid(np.array([2])))
 
 class Layer:
     def __init__(self, num_neurons, prev_layer=None):

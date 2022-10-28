@@ -19,11 +19,11 @@ def create_grayscale_vector_array():
     return arr
 
 
-def root_mean_squared_error(actual_values, predicted_values):
-    return mean_squared_error(actual_values, predicted_values, squared=False)
+def mserror(actual_values, predicted_values):
+    return mean_squared_error(actual_values, predicted_values, squared=True)
 
 
-def RMSE():
+def MSE():
     # for i in l3.get_matrix()[0]:
     #     print(i.get_value(), i.get_weights(), i.get_bias())
 
@@ -39,7 +39,7 @@ def RMSE():
             actuals.append(0)
         predicts.append(val)
 
-    return root_mean_squared_error(actuals, predicts)
+    return mserror(actuals, predicts)
 
 
 vect_arr = create_grayscale_vector_array()
@@ -54,10 +54,10 @@ for j in range(0, 20):
         l1.update(vect_arr[i])
         l2.update()
         l3.update()
-        total += RMSE()
+        total += MSE()
 
     avg = total / len(vect_arr)
-    print(avg)
+    print(10*avg)
 
 # l1 = la.Layer(None, val_array=train_images[0])
 # l2 = la.Layer(16, l1)
