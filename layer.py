@@ -45,6 +45,11 @@ class Layer:
     def get_weights(self):
         return self.weights
 
+    def change_weights(self, shifts):
+        for i in range(0, self.weights):
+            for j in range(0, self.weights[0]):
+                self.weights[i, j] += shifts[i][j]
+
     def get_prod(self):
         return self.prod
 

@@ -81,6 +81,8 @@ for j in range(0, 20):
     dza2 = dsigmoid(l2.get_prod())
     dza3 = dsigmoid(l3.get_prod())
 
+    l1.
+
 
 
     avg = total / len(vect_arr)
