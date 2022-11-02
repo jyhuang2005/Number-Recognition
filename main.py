@@ -18,6 +18,7 @@ def create_grayscale_vector_array():
             for c in range(len(img[0])):
                 grayscale_array.append([img[r][c] / 255])
         arr.append(np.array(grayscale_array))
+        break
     return arr
 
 
@@ -46,6 +47,21 @@ def MSE(index):
 
 vect_arr = create_grayscale_vector_array()
 
+# def top_weights:
+#     # 2 * w * dsigmoid(z) * (a - y)
+#
+# def propagate_weights:
+
+
+def d_a_to_cost(index):
+    matrix = l3.get_matrix()
+
+    for i in range(0, len(matrix)):
+        if i == int(train_labels[index]):
+            dacost.append((matrix[i, 0] - 1) * 2)
+        else:
+            dacost.append(matrix[i, 0] * 2)
+
 for j in range(0, 20):
     l1 = la.Layer(16)
     l2 = la.Layer(16, l1)
@@ -59,31 +75,20 @@ for j in range(0, 20):
         total += MSE(j)
 
     dacost = []
+    d_a_to_cost(j)
+    print(dacost)
     dza1 = dsigmoid(l1.get_prod())
     dza2 = dsigmoid(l2.get_prod())
     dza3 = dsigmoid(l3.get_prod())
 
-    
+
 
     avg = total / len(vect_arr)
     print(10*avg)
 
 
 
-def top_propagate_weights:
-    # 2 * w * dsigmoid(z) * (a - y)
 
-def propagate_weights:
-
-
-def d_a_to_cost(index):
-    matrix = l3.get_matrix()
-
-    for i in range(0, len(matrix)):
-        if i == int(train_labels[index]):
-            dacost[i] = (matrix[i] - 1) * 2
-        else:
-            dacost[i] = matrix[i] * 2
 
 
 

@@ -67,5 +67,5 @@ class Layer:
             self.prev_matrix = prev_matrix
 
         self.prod = np.matmul(self.weights, self.prev_matrix)
-        self.matrix = sigmoid(np.add(prod, self.biases))
+        self.matrix = sigmoid(np.add(self.prod, self.biases))
 
