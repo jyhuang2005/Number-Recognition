@@ -7,8 +7,10 @@ from sklearn.metrics import mean_squared_error
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
 
+
 def dsigmoid(x):
     return np.exp(x)/np.power((1+np.exp(x)), 2)
+
 
 def create_grayscale_vector_array():
     arr = []
@@ -34,7 +36,7 @@ def MSE(index):
     predicts = []
 
     matrix = l3.get_matrix()
-    for j in range(0, len(matrix)):
+    for j in range(len(matrix)):
         val = matrix[j, 0]
         if j == int(train_labels[index]):
             actuals.append(1)
@@ -56,19 +58,20 @@ vect_arr = create_grayscale_vector_array()
 def d_a_to_cost(index):
     matrix = l3.get_matrix()
 
-    for i in range(0, len(matrix)):
+    for i in range(len(matrix)):
         if i == int(train_labels[index]):
             dacost.append((matrix[i, 0] - 1) * 2)
         else:
             dacost.append(matrix[i, 0] * 2)
 
-for j in range(0, 20):
+
+for j in range(20):
     l1 = la.Layer(16)
     l2 = la.Layer(16, l1)
     l3 = la.Layer(10, l2)
 
     total = 0
-    for i in range(0, len(vect_arr)):
+    for i in range(len(vect_arr)):
         l1.update(vect_arr[i])
         l2.update()
         l3.update()
@@ -81,15 +84,11 @@ for j in range(0, 20):
     dza2 = dsigmoid(l2.get_prod())
     dza3 = dsigmoid(l3.get_prod())
 
-    l1.
 
 
 
     avg = total / len(vect_arr)
     print(10*avg)
-
-
-
 
 
 
