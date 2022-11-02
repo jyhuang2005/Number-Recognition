@@ -6,6 +6,7 @@ import random as r
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
+
 class Layer:
     def __init__(self, num_neurons, prev_layer=None):
         self.num_neurons = num_neurons
@@ -20,17 +21,17 @@ class Layer:
         self.prod = None
 
         self.weights = np.empty([self.num_neurons, self.prev_len])
-        for i in range(0, num_neurons):
-            for j in range(0, self.prev_len):
+        for i in range(num_neurons):
+            for j in range(self.prev_len):
                 self.weights[i, j] = 2*r.random() - 1
 
         self.biases = np.empty([num_neurons, 1])
-        for i in range(0, num_neurons):
+        for i in range(num_neurons):
             self.biases[i, 0] = -2*r.random()
 
         self.matrix = np.array([1, num_neurons])
 
-        # for i in range(0, num_neurons):
+        # for i in range(num_neurons):
         #     self.neuron_array[0].append(n.Neuron(connects=prev_layer.get_neuron_array()))
 
     def __len__(self):
@@ -46,12 +47,12 @@ class Layer:
         return self.weights
 
     def change_weights(self, shifts):
-        for i in range(0, len(self.weights)):
-            for j in range(0, len(self.weights[0])):
+        for i in range(len(self.weights)):
+            for j in range(len(self.weights[0])):
                 self.weights[i, j] = np.add(self.weights[i, j], shifts[i, j])
 
     def change_biases(self, shifts):
-        for i in range(0, len(self.biases)):
+        for i in range(len(self.biases)):
             self.biases[i, 0] = np.add(self.biases[i, 0], shifts[i, 0])
 
     def get_prod(self):
@@ -65,8 +66,8 @@ class Layer:
     #         for nr in self.neuron_array[0]:
     #             nr.update()
     #     else:
-    #         for i in range(0, len(val_array)):
-    #             for j in range(0, len(val_array[0])):
+    #         for i in range(len(val_array)):
+    #             for j in range(len(val_array[0])):
     #                 self.neuron_array[i][j].update(val_array[i][j]/255)
 
     def update(self, prev_matrix=None):
