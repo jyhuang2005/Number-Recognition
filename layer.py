@@ -46,9 +46,13 @@ class Layer:
         return self.weights
 
     def change_weights(self, shifts):
-        for i in range(0, self.weights):
-            for j in range(0, self.weights[0]):
-                self.weights[i, j] += shifts[i][j]
+        for i in range(0, len(self.weights)):
+            for j in range(0, len(self.weights[0])):
+                self.weights[i, j] = np.add(self.weights[i, j], shifts[i, j])
+
+    def change_biases(self, shifts):
+        for i in range(0, len(self.biases)):
+            self.biases[i, 0] = np.add(self.biases[i, 0], shifts[i, 0])
 
     def get_prod(self):
         return self.prod
