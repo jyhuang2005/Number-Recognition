@@ -81,7 +81,11 @@ for j in range(0, 20):
     dza2 = dsigmoid(l2.get_prod())
     dza3 = dsigmoid(l3.get_prod())
 
-    l1.
+    l3_shifts = np.empty([l3.num_neurons, l3.prev_len])
+    for m in range(l3.num_neurons):
+        for n in range(l3.prev_len):
+            l3_shifts[m, n] = dacost[m] * dza3[m] * l2.get_matrix()[n, 0]
+    l3.change_weights(l3_shifts)
 
 
 
