@@ -7,6 +7,8 @@ from sklearn.metrics import mean_squared_error
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
 
+def dsigmoid(x):
+    return np.exp(x)/np.power((1+np.exp(x)), 2)
 
 def create_grayscale_vector_array():
     arr = []
@@ -23,7 +25,7 @@ def mserror(actual_values, predicted_values):
     return mean_squared_error(actual_values, predicted_values, squared=True)
 
 
-def MSE():
+def MSE(index):
     # for i in l3.get_matrix()[0]:
     #     print(i.get_value(), i.get_weights(), i.get_bias())
 
@@ -33,7 +35,7 @@ def MSE():
     matrix = l3.get_matrix()
     for j in range(0, len(matrix)):
         val = matrix[j, 0]
-        if j == int(train_labels[0]):
+        if j == int(train_labels[index]):
             actuals.append(1)
         else:
             actuals.append(0)
@@ -54,10 +56,39 @@ for j in range(0, 20):
         l1.update(vect_arr[i])
         l2.update()
         l3.update()
-        total += MSE()
+        total += MSE(j)
+
+    dacost = []
+    dza1 = dsigmoid(l1.get_prod())
+    dza2 = dsigmoid(l2.get_prod())
+    dza3 = dsigmoid(l3.get_prod())
+
+    
 
     avg = total / len(vect_arr)
     print(10*avg)
+
+
+
+def top_propagate_weights:
+    # 2 * w * dsigmoid(z) * (a - y)
+
+def propagate_weights:
+
+
+def d_a_to_cost(index):
+    matrix = l3.get_matrix()
+
+    for i in range(0, len(matrix)):
+        if i == int(train_labels[index]):
+            dacost[i] = (matrix[i] - 1) * 2
+        else:
+            dacost[i] = matrix[i] * 2
+
+
+
+
+
 
 # l1 = la.Layer(None, val_array=train_images[0])
 # l2 = la.Layer(16, l1)

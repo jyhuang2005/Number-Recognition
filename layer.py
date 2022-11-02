@@ -6,14 +6,10 @@ import random as r
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-def dsigmoid(x):
-    return np.exp(x)/np.power((1+np.exp(x)), 2)
-
-print(dsigmoid(np.array([2])))
-
 class Layer:
     def __init__(self, num_neurons, prev_layer=None):
         self.num_neurons = num_neurons
+
         # self.neuron_array = []
         self.prev_len = 784
         if prev_layer is not None:
@@ -21,6 +17,7 @@ class Layer:
             self.prev_len = len(prev_layer)
 
         self.prev_matrix = None
+        self.prod = None
 
         self.weights = np.empty([self.num_neurons, self.prev_len])
         for i in range(0, num_neurons):
@@ -48,6 +45,9 @@ class Layer:
     def get_weights(self):
         return self.weights
 
+    def get_prod(self):
+        return self.prod
+
     # def get_neuron_array(self):
     #     return self.neuron_array
 
@@ -66,6 +66,6 @@ class Layer:
         else:
             self.prev_matrix = prev_matrix
 
-        prod = np.matmul(self.weights, self.prev_matrix)
+        self.prod = np.matmul(self.weights, self.prev_matrix)
         self.matrix = sigmoid(np.add(prod, self.biases))
 
