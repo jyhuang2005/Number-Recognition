@@ -22,7 +22,7 @@ def create_grayscale_vector_array():
                 grayscale_array.append([img[r][c] / 255])
         arr.append(np.array(grayscale_array))
         count += 1
-        if count == 100:
+        if count == 20:
             break
     return arr
 
@@ -38,7 +38,7 @@ def MSE(index):
     actuals = []
     predicts = []
 
-    matrix = l3.get_matrix()
+    matrix = l3.matrix
     for j in range(len(matrix)):
         val = matrix[j, 0]
         if j == int(train_labels[index]):
@@ -59,7 +59,7 @@ vect_arr = create_grayscale_vector_array()
 
 
 def d_a_to_cost(index):
-    matrix = l3.get_matrix()
+    matrix = l3.matrix
 
     for val in range(len(matrix)):
         if val == int(train_labels[index]):
@@ -90,19 +90,24 @@ for j in range(100):
 
         dacost = []
         d_a_to_cost(i)
-        dza1 = dsigmoid(l1.get_prod())
-        dza2 = dsigmoid(l2.get_prod())
-        dza3 = dsigmoid(l3.get_prod())
+        dza1 = dsigmoid(l1.prod)
+        dza2 = dsigmoid(l2.prod)
+        dza3 = dsigmoid(l3.prod)
 
-        prev_matrix = l2.get_matrix()
+        dzcost = []
+
+        prev_matrix = l2.matrix
         for m in range(l3.num_neurons):
+            dzcost1 = dacost[m] * dza3[m, 0]
+            dzcost.append(dzcost1)
             for n in range(l3.prev_len):
                 # print(dacost[m], dza3[m, 0], prev_matrix[n, 0])
                 # print(-dacost[m] * dza3[m, 0] * prev_matrix[n, 0])
-                l3_wshifts[m, n] -= dacost[m] * dza3[m, 0] * prev_matrix[n, 0]
+                l3_wshifts[m, n] -= dzcost1 * prev_matrix[n, 0]
+            l3_bshifts[m, 0] -= dzcost1
 
-        for m in range(l3.num_neurons):
-            l3_bshifts[m, 0] += -dacost[m] * dza3[m]
+        # for m in range(l2.num_neurons):
+        #
 
     avg = total / len(vect_arr)
     print(10 * avg)
@@ -118,16 +123,16 @@ for j in range(100):
 
 correct = 0
 
-for i in range(100):
+for i in range(11, 20):
     l1.update(vect_arr[i])
     l2.update()
     l3.update()
     total += MSE(i)
     maxim = 0
     maxim_index = 0
-    for j in range(len(l3.get_matrix())):
-        if l3.get_matrix()[j, 0] > maxim:
-            maxim = l3.get_matrix()[j, 0]
+    for j in range(len(l3.matrix)):
+        if l3.matrix[j, 0] > maxim:
+            maxim = l3.matrix[j, 0]
             maxim_index = j
     print(maxim_index)
     print(train_labels[i])

@@ -37,14 +37,14 @@ class Layer:
     def __len__(self):
         return self.num_neurons
 
-    def get_num_neurons(self):
-        return self.num_neurons
-
-    def get_matrix(self):
-        return self.matrix
-
-    def get_weights(self):
-        return self.weights
+    # def get_num_neurons(self):
+    #     return self.num_neurons
+    #
+    # def get_matrix(self):
+    #     return self.matrix
+    #
+    # def get_weights(self):
+    #     return self.weights
 
     def change_weights(self, shifts):
         for i in range(len(self.weights)):
@@ -55,8 +55,8 @@ class Layer:
         for i in range(len(self.biases)):
             self.biases[i, 0] = np.add(self.biases[i, 0], shifts[i, 0])
 
-    def get_prod(self):
-        return self.prod
+    # def get_prod(self):
+    #     return self.prod
 
     # def get_neuron_array(self):
     #     return self.neuron_array
@@ -72,7 +72,7 @@ class Layer:
 
     def update(self, prev_matrix=None):
         if prev_matrix is None:
-            self.prev_matrix = self.prev_layer.get_matrix()
+            self.prev_matrix = self.prev_layer.matrix
         else:
             self.prev_matrix = prev_matrix
 
