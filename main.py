@@ -22,7 +22,7 @@ def create_grayscale_vector_array():
                 grayscale_array.append([img[r][c] / 255])
         arr.append(np.array(grayscale_array))
         count += 1
-        if count == 20:
+        if count == 200:
             break
     return arr
 
@@ -63,24 +63,32 @@ def d_a_to_cost(index):
 
     for val in range(len(matrix)):
         if val == int(train_labels[index]):
-            dacost.append((matrix[val, 0] - 1) * 2)
+            da3cost.append((matrix[val, 0] - 1) * 2)
         else:
-            dacost.append(matrix[val, 0] * 2)
+            da3cost.append(matrix[val, 0] * 2)
 
 
 l1 = la.Layer(16)
 l2 = la.Layer(16, l1)
 l3 = la.Layer(10, l2)
 
-prop_c = 20.0
+prop_c = 10.0
 
 
 for j in range(100):
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
-    l3_wshifts[:] = 0
+    l3_wshifts.fill(0)
     l3_bshifts = np.empty([l3.num_neurons, 1])
-    l3_bshifts[:] = 0
+    l3_bshifts.fill(0)
+    l2_wshifts = np.empty([l2.num_neurons, l2.prev_len])
+    l2_wshifts.fill(0)
+    l2_bshifts = np.empty([l2.num_neurons, 1])
+    l2_bshifts.fill(0)
+    l1_wshifts = np.empty([l1.num_neurons, l1.prev_len])
+    l1_wshifts.fill(0)
+    l1_bshifts = np.empty([l1.num_neurons, 1])
+    l1_bshifts.fill(0)
 
     for i in range(len(vect_arr)):
         l1.update(vect_arr[i])
@@ -88,26 +96,46 @@ for j in range(100):
         l3.update()
         total += MSE(i)
 
-        dacost = []
+        da3cost = []
+        da2cost = []
+        da1cost = []
+        for j in range(16):
+            da2cost.append(0)
+            da1cost.append(0)
         d_a_to_cost(i)
         dza1 = dsigmoid(l1.prod)
         dza2 = dsigmoid(l2.prod)
         dza3 = dsigmoid(l3.prod)
 
-        dzcost = []
+        layer = l3
+        matrix = l3.matrix
+        prev_matrix = layer.prev_matrix
+        for m in range(layer.num_neurons):
+            dz3costm = da3cost[m] * dza3[m, 0]
+            for n in range(layer.prev_len):
+                l3_wshifts[m, n] -= dz3costm * prev_matrix[n, 0]
+                da2cost[n] += dz3costm * layer.weights[m, n]
+            l3_bshifts[m, 0] -= dz3costm
 
-        prev_matrix = l2.matrix
-        for m in range(l3.num_neurons):
-            dzcost1 = dacost[m] * dza3[m, 0]
-            dzcost.append(dzcost1)
-            for n in range(l3.prev_len):
-                # print(dacost[m], dza3[m, 0], prev_matrix[n, 0])
-                # print(-dacost[m] * dza3[m, 0] * prev_matrix[n, 0])
-                l3_wshifts[m, n] -= dzcost1 * prev_matrix[n, 0]
-            l3_bshifts[m, 0] -= dzcost1
+        layer = l2
+        matrix = prev_matrix
+        prev_matrix = layer.prev_matrix
+        for m in range(l2.num_neurons):
+            dz2costm = da2cost[m] * dza2[m, 0]
+            for n in range(l2.prev_len):
+                l2_wshifts[m, n] -= dz2costm * prev_matrix[n, 0]
+                da1cost[n] += dz2costm * layer.weights[m, n]
+            l2_bshifts[m, 0] -= dz2costm
 
-        # for m in range(l2.num_neurons):
-        #
+        layer = l1
+        matrix = prev_matrix
+        prev_matrix = layer.prev_matrix
+        for m in range(l1.num_neurons):
+            dz1costm = da1cost[m] * dza1[m, 0]
+            for n in range(l1.prev_len):
+                l1_wshifts[m, n] -= dz1costm * prev_matrix[n, 0]
+            l1_bshifts[m, 0] -= dz1costm
+
 
     avg = total / len(vect_arr)
     print(10 * avg)
@@ -116,18 +144,28 @@ for j in range(100):
     l3_wshifts *= prop_c
     l3_bshifts /= len(vect_arr)
     l3_bshifts *= prop_c
-
+    l2_wshifts /= len(vect_arr)
+    l2_wshifts *= prop_c
+    l2_bshifts /= len(vect_arr)
+    l2_bshifts *= prop_c
+    l1_wshifts /= len(vect_arr)
+    l1_wshifts *= prop_c
+    l1_bshifts /= len(vect_arr)
+    l1_bshifts *= prop_c
 
     l3.change_weights(l3_wshifts)
     l3.change_biases(l3_bshifts)
+    l2.change_weights(l2_wshifts)
+    l2.change_biases(l2_bshifts)
+    l1.change_weights(l1_wshifts)
+    l1.change_biases(l1_bshifts)
 
 correct = 0
 
-for i in range(11, 20):
+for i in range(200):
     l1.update(vect_arr[i])
     l2.update()
     l3.update()
-    total += MSE(i)
     maxim = 0
     maxim_index = 0
     for j in range(len(l3.matrix)):
