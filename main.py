@@ -7,15 +7,18 @@ from sklearn.metrics import mean_squared_error
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
 
+test_images = idx2numpy.convert_from_file("t10k-images-idx3-ubyte")
+test_labels = idx2numpy.convert_from_file("t10k-labels-idx1-ubyte")
+
 
 def dsigmoid(x):
     return np.exp(x)/np.power((1+np.exp(x)), 2)
 
 
-def create_grayscale_vector_array():
+def create_grayscale_vector_array(image_set):
     arr = []
     count = 0
-    for img in train_images:
+    for img in image_set:
         grayscale_array = []
         for r in range(len(img)):
             for c in range(len(img[0])):
@@ -50,7 +53,8 @@ def MSE(index):
     return mserror(actuals, predicts)
 
 
-vect_arr = create_grayscale_vector_array()
+train_vect_arr = create_grayscale_vector_array(train_images)
+test_vect_arr = create_grayscale_vector_array(test_images)
 
 # def top_weights:
 #     # 2 * w * dsigmoid(z) * (a - y)
@@ -90,8 +94,8 @@ for j in range(100):
     l1_bshifts = np.empty([l1.num_neurons, 1])
     l1_bshifts.fill(0)
 
-    for i in range(len(vect_arr)):
-        l1.update(vect_arr[i])
+    for i in range(len(train_vect_arr)):
+        l1.update(train_vect_arr[i])
         l2.update()
         l3.update()
         total += MSE(i)
@@ -137,20 +141,20 @@ for j in range(100):
             l1_bshifts[m, 0] -= dz1costm
 
 
-    avg = total / len(vect_arr)
+    avg = total / len(train_vect_arr)
     print(10 * avg)
 
-    l3_wshifts /= len(vect_arr)
+    l3_wshifts /= len(train_vect_arr)
     l3_wshifts *= prop_c
-    l3_bshifts /= len(vect_arr)
+    l3_bshifts /= len(train_vect_arr)
     l3_bshifts *= prop_c
-    l2_wshifts /= len(vect_arr)
+    l2_wshifts /= len(train_vect_arr)
     l2_wshifts *= prop_c
-    l2_bshifts /= len(vect_arr)
+    l2_bshifts /= len(train_vect_arr)
     l2_bshifts *= prop_c
-    l1_wshifts /= len(vect_arr)
+    l1_wshifts /= len(train_vect_arr)
     l1_wshifts *= prop_c
-    l1_bshifts /= len(vect_arr)
+    l1_bshifts /= len(train_vect_arr)
     l1_bshifts *= prop_c
 
     l3.change_weights(l3_wshifts)
@@ -161,9 +165,10 @@ for j in range(100):
     l1.change_biases(l1_bshifts)
 
 correct = 0
+tot = 0
 
 for i in range(200):
-    l1.update(vect_arr[i])
+    l1.update(test_vect_arr[i])
     l2.update()
     l3.update()
     maxim = 0
@@ -173,10 +178,11 @@ for i in range(200):
             maxim = l3.matrix[j, 0]
             maxim_index = j
     print(maxim_index)
-    print(train_labels[i])
-    if maxim_index == train_labels[i]:
+    print(test_labels[i])
+    if maxim_index == test_labels[i]:
         correct += 1
-print(correct)
+    tot += 1
+print(f'{correct} / {tot}')
 
 
 
