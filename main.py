@@ -25,7 +25,7 @@ def create_grayscale_vector_array(image_set):
                 grayscale_array.append([img[r][c] / 255])
         arr.append(np.array(grayscale_array))
         count += 1
-        if count == 200:
+        if count == 100:
             break
     return arr
 
@@ -70,6 +70,15 @@ def d_a_to_cost(index):
             da3cost.append((matrix[val, 0] - 1) * 2)
         else:
             da3cost.append(matrix[val, 0] * 2)
+
+
+def savewb():
+    np.savetxt("l1weights.txt", l1.weights)
+    np.savetxt("l2weights.txt", l2.weights)
+    np.savetxt("l3weights.txt", l3.weights)
+    np.savetxt("l1biases.txt", l1.biases)
+    np.savetxt("l2biases.txt", l2.biases)
+    np.savetxt("l3biases.txt", l3.biases)
 
 
 l1 = la.Layer(16)
@@ -167,7 +176,7 @@ for j in range(100):
 correct = 0
 tot = 0
 
-for i in range(200):
+for i in range(100):
     l1.update(test_vect_arr[i])
     l2.update()
     l3.update()
@@ -182,9 +191,14 @@ for i in range(200):
     if maxim_index == test_labels[i]:
         correct += 1
     tot += 1
+percent_correct = correct/tot
+with open('percentcorrect.txt') as f:
+    lines = f.readlines()
+if percent_correct > float(lines[0]):
+    with open('percentcorrect.txt', 'w') as f:
+        f.write(str(percent_correct))
+    savewb()
 print(f'{correct} / {tot}')
-
-
 
 
 # l1 = la.Layer(None, val_array=train_images[0])
