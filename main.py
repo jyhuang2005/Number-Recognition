@@ -27,8 +27,8 @@ def create_grayscale_vector_array(image_set):
                 grayscale_array.append([img[r][c] / 255])
         arr[count // 10].append(np.array(grayscale_array))
         count += 1
-        if count == 200:
-            break
+        # if count == 200:
+        #     break
     return arr
 
 
@@ -178,8 +178,8 @@ for j in range(12000):
 correct = 0
 tot = 0
 
-for i in range(100):
-    l1.update(test_vect_arr[i])
+# for i in range(100):
+#     l1.update(test_vect_arr[i])
 for i in range(10000):
     l1.update(test_vect_arr[i // 10][i % 10])
     l2.update()
