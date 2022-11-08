@@ -18,14 +18,16 @@ def dsigmoid(x):
 def create_grayscale_vector_array(image_set):
     arr = []
     count = 0
+    for p in range(len(train_images) // 10):
+        arr.append([])
     for img in image_set:
         grayscale_array = []
         for r in range(len(img)):
             for c in range(len(img[0])):
                 grayscale_array.append([img[r][c] / 255])
-        arr.append(np.array(grayscale_array))
+        arr[count // 10].append(np.array(grayscale_array))
         count += 1
-        if count == 100:
+        if count == 200:
             break
     return arr
 
@@ -41,10 +43,10 @@ def MSE(index):
     actuals = []
     predicts = []
 
-    matrix = l3.matrix
-    for j in range(len(matrix)):
-        val = matrix[j, 0]
-        if j == int(train_labels[index]):
+    temp_matrix = l3.matrix
+    for k in range(len(temp_matrix)):
+        val = temp_matrix[k, 0]
+        if k == int(train_labels[index]):
             actuals.append(1)
         else:
             actuals.append(0)
@@ -63,13 +65,13 @@ test_vect_arr = create_grayscale_vector_array(test_images)
 
 
 def d_a_to_cost(index):
-    matrix = l3.matrix
+    temp_matrix = l3.matrix
 
-    for val in range(len(matrix)):
+    for val in range(len(temp_matrix)):
         if val == int(train_labels[index]):
-            da3cost.append((matrix[val, 0] - 1) * 2)
+            da3cost.append((temp_matrix[val, 0] - 1) * 2)
         else:
-            da3cost.append(matrix[val, 0] * 2)
+            da3cost.append(temp_matrix[val, 0] * 2)
 
 
 def savewb():
@@ -85,10 +87,11 @@ l1 = la.Layer(16)
 l2 = la.Layer(16, l1)
 l3 = la.Layer(10, l2)
 
-prop_c = 10.0
+prop_c = 0.5
 
 
-for j in range(100):
+for j in range(12000):
+    train_vect = train_vect_arr[j % 6000]
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
     l3_wshifts.fill(0)
@@ -103,19 +106,19 @@ for j in range(100):
     l1_bshifts = np.empty([l1.num_neurons, 1])
     l1_bshifts.fill(0)
 
-    for i in range(len(train_vect_arr)):
-        l1.update(train_vect_arr[i])
+    for i in range(len(train_vect)):
+        l1.update(train_vect[i])
         l2.update()
         l3.update()
-        total += MSE(i)
+        total += MSE((j % 6000) * 10 + i)
 
         da3cost = []
         da2cost = []
         da1cost = []
-        for j in range(16):
+        for k in range(16):
             da2cost.append(0)
             da1cost.append(0)
-        d_a_to_cost(i)
+        d_a_to_cost((j % 6000) * 10 + i)
         dza1 = dsigmoid(l1.prod)
         dza2 = dsigmoid(l2.prod)
         dza3 = dsigmoid(l3.prod)
@@ -149,21 +152,20 @@ for j in range(100):
                 l1_wshifts[m, n] -= dz1costm * prev_matrix[n, 0]
             l1_bshifts[m, 0] -= dz1costm
 
-
-    avg = total / len(train_vect_arr)
+    avg = total / len(train_vect)
     print(10 * avg)
 
-    l3_wshifts /= len(train_vect_arr)
+    l3_wshifts /= len(train_vect)
     l3_wshifts *= prop_c
-    l3_bshifts /= len(train_vect_arr)
+    l3_bshifts /= len(train_vect)
     l3_bshifts *= prop_c
-    l2_wshifts /= len(train_vect_arr)
+    l2_wshifts /= len(train_vect)
     l2_wshifts *= prop_c
-    l2_bshifts /= len(train_vect_arr)
+    l2_bshifts /= len(train_vect)
     l2_bshifts *= prop_c
-    l1_wshifts /= len(train_vect_arr)
+    l1_wshifts /= len(train_vect)
     l1_wshifts *= prop_c
-    l1_bshifts /= len(train_vect_arr)
+    l1_bshifts /= len(train_vect)
     l1_bshifts *= prop_c
 
     l3.change_weights(l3_wshifts)
@@ -178,6 +180,8 @@ tot = 0
 
 for i in range(100):
     l1.update(test_vect_arr[i])
+for i in range(10000):
+    l1.update(test_vect_arr[i // 10][i % 10])
     l2.update()
     l3.update()
     maxim = 0
