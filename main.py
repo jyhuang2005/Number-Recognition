@@ -3,6 +3,7 @@ import numpy as np
 import layer as la
 import neuron as n
 from sklearn.metrics import mean_squared_error
+from io import StringIO
 
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
@@ -18,7 +19,7 @@ def dsigmoid(x):
 def create_grayscale_vector_array(image_set):
     arr = []
     count = 0
-    for p in range(len(train_images) // 10):
+    for p in range(len(image_set) // 10):
         arr.append([])
     for img in image_set:
         grayscale_array = []
@@ -27,8 +28,6 @@ def create_grayscale_vector_array(image_set):
                 grayscale_array.append([img[r][c] / 255])
         arr[count // 10].append(np.array(grayscale_array))
         count += 1
-        # if count == 200:
-        #     break
     return arr
 
 
@@ -74,13 +73,37 @@ def d_a_to_cost(index):
             da3cost.append(temp_matrix[val, 0] * 2)
 
 
-def savewb():
+def update_text_files():
+    with open('percentcorrect.txt', 'w') as f:
+        f.write(str(percent_correct))
     np.savetxt("l1weights.txt", l1.weights)
     np.savetxt("l2weights.txt", l2.weights)
     np.savetxt("l3weights.txt", l3.weights)
     np.savetxt("l1biases.txt", l1.biases)
     np.savetxt("l2biases.txt", l2.biases)
     np.savetxt("l3biases.txt", l3.biases)
+
+
+def get_weights(layer_num):
+    if layer_num == 1:
+        return np.loadtxt("l1weights.txt")
+    elif layer_num == 2:
+        return np.loadtxt("l2weights.txt")
+    elif layer_num == 3:
+        return np.loadtxt("l3weights.txt")
+    else:
+        return None
+
+
+def get_biases(layer_num):
+    if layer_num == 1:
+        return np.loadtxt("l1biases.txt")
+    elif layer_num == 2:
+        return np.loadtxt("l2biases.txt")
+    elif layer_num == 3:
+        return np.loadtxt("l3biases.txt")
+    else:
+        return None
 
 
 l1 = la.Layer(16)
@@ -178,8 +201,6 @@ for j in range(12000):
 correct = 0
 tot = 0
 
-# for i in range(100):
-#     l1.update(test_vect_arr[i])
 for i in range(10000):
     l1.update(test_vect_arr[i // 10][i % 10])
     l2.update()
@@ -196,14 +217,11 @@ for i in range(10000):
         correct += 1
     tot += 1
 percent_correct = correct/tot
-with open('percentcorrect.txt') as f:
-    lines = f.readlines()
-if percent_correct > float(lines[0]):
-    with open('percentcorrect.txt', 'w') as f:
-        f.write(str(percent_correct))
-    savewb()
-print(f'{correct} / {tot}')
+if percent_correct > float(np.loadtxt[0]):
+    update_text_files()
 
+print(f'{correct} / {tot}')
+print(get_biases(1))
 
 # l1 = la.Layer(None, val_array=train_images[0])
 # l2 = la.Layer(16, l1)
