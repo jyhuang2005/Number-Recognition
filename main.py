@@ -217,7 +217,7 @@ for i in range(10000):
         correct += 1
     tot += 1
 percent_correct = correct/tot
-if percent_correct > float(np.loadtxt[0]):
+if percent_correct > float(np.loadtxt("percentcorrect.txt")):
     update_text_files()
 
 print(f'{correct} / {tot}')
