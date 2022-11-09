@@ -8,7 +8,7 @@ def sigmoid(x):
 
 
 class Layer:
-    def __init__(self, num_neurons, prev_layer=None):
+    def __init__(self, num_neurons, prev_layer=None, weights=None, biases=None):
         self.num_neurons = num_neurons
 
         # self.neuron_array = []
@@ -17,17 +17,25 @@ class Layer:
             self.prev_layer = prev_layer
             self.prev_len = len(prev_layer)
 
+        if weights is not None:
+            self.weights = np.array(weights)
+
+        if biases is not None:
+            self.biases = np.array(biases)
+
         self.prev_matrix = None
         self.prod = None
 
-        self.weights = np.empty([self.num_neurons, self.prev_len])
-        for i in range(num_neurons):
-            for j in range(self.prev_len):
-                self.weights[i, j] = 2*r.random() - 1
+        if weights is None:
+            self.weights = np.empty([self.num_neurons, self.prev_len])
+            for i in range(num_neurons):
+                for j in range(self.prev_len):
+                    self.weights[i, j] = 2*r.random() - 1
 
-        self.biases = np.empty([num_neurons, 1])
-        for i in range(num_neurons):
-            self.biases[i, 0] = -2*r.random()
+        if biases is None:
+            self.biases = np.empty([num_neurons, 1])
+            for i in range(num_neurons):
+                self.biases[i, 0] = -2*r.random()
 
         self.matrix = np.array([1, num_neurons])
 

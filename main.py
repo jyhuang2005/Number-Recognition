@@ -3,7 +3,6 @@ import numpy as np
 import layer as la
 import neuron as n
 from sklearn.metrics import mean_squared_error
-from io import StringIO
 
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
@@ -28,6 +27,8 @@ def create_grayscale_vector_array(image_set):
                 grayscale_array.append([img[r][c] / 255])
         arr[count // 10].append(np.array(grayscale_array))
         count += 1
+        if count == 200:
+            break
     return arr
 
 
@@ -91,8 +92,6 @@ def get_weights(layer_num):
         return np.loadtxt("l2weights.txt")
     elif layer_num == 3:
         return np.loadtxt("l3weights.txt")
-    else:
-        return None
 
 
 def get_biases(layer_num):
@@ -102,18 +101,16 @@ def get_biases(layer_num):
         return np.loadtxt("l2biases.txt")
     elif layer_num == 3:
         return np.loadtxt("l3biases.txt")
-    else:
-        return None
 
 
-l1 = la.Layer(16)
-l2 = la.Layer(16, l1)
-l3 = la.Layer(10, l2)
+l1 = la.Layer(16, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
+l2 = la.Layer(16, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
+l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
 prop_c = 0.5
 
 
-for j in range(12000):
+for j in range(12):
     train_vect = train_vect_arr[j % 6000]
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
@@ -201,7 +198,7 @@ for j in range(12000):
 correct = 0
 tot = 0
 
-for i in range(10000):
+for i in range(200):
     l1.update(test_vect_arr[i // 10][i % 10])
     l2.update()
     l3.update()
@@ -217,11 +214,11 @@ for i in range(10000):
         correct += 1
     tot += 1
 percent_correct = correct/tot
-if percent_correct > float(np.loadtxt("percentcorrect.txt")):
+if percent_correct > float(np.loadtxt("percentcorrect.txt")) and tot == 10000:
     update_text_files()
 
 print(f'{correct} / {tot}')
-print(get_biases(1))
+print(np.rot90([get_biases(1)], 3))
 
 # l1 = la.Layer(None, val_array=train_images[0])
 # l2 = la.Layer(16, l1)
