@@ -18,14 +18,14 @@ def dsigmoid(x):
 def create_grayscale_vector_array(image_set):
     arr = []
     count = 0
-    for p in range(len(image_set) // 100):
+    for p in range(len(image_set) // 10):
         arr.append([])
     for img in image_set:
         grayscale_array = []
         for r in range(len(img)):
             for c in range(len(img[0])):
                 grayscale_array.append([img[r][c] / 255])
-        arr[count // 100].append(np.array(grayscale_array))
+        arr[count // 10].append(np.array(grayscale_array))
         count += 1
         # if count == 200:
         #     break
@@ -107,11 +107,11 @@ l1 = la.Layer(16, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(16, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-prop_c = 0.015
+prop_c = 0.01
 
 
-for j in range(12000):
-    train_vect = train_vect_arr[j % 600]
+for j in range(20000):
+    train_vect = train_vect_arr[j % 6000]
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
     l3_wshifts.fill(0)
@@ -130,7 +130,7 @@ for j in range(12000):
         l1.update(train_vect[i])
         l2.update()
         l3.update()
-        total += MSE((j % 600) * 100 + i)
+        total += MSE((j % 6000) * 10 + i)
 
         da3cost = []
         da2cost = []
@@ -138,7 +138,7 @@ for j in range(12000):
         for k in range(16):
             da2cost.append(0)
             da1cost.append(0)
-        d_a_to_cost((j % 600) * 100 + i)
+        d_a_to_cost((j % 6000) * 10 + i)
         dza1 = dsigmoid(l1.prod)
         dza2 = dsigmoid(l2.prod)
         dza3 = dsigmoid(l3.prod)
@@ -201,7 +201,7 @@ correct = 0
 tot = 0
 
 for i in range(10000):
-    l1.update(test_vect_arr[i // 100][i % 100])
+    l1.update(test_vect_arr[i // 10][i % 10])
     l2.update()
     l3.update()
     maxim = 0
