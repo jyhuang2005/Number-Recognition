@@ -4,11 +4,14 @@ import layer as la
 import neuron as n
 from sklearn.metrics import mean_squared_error
 
+
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
 train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
 
 test_images = idx2numpy.convert_from_file("t10k-images-idx3-ubyte")
 test_labels = idx2numpy.convert_from_file("t10k-labels-idx1-ubyte")
+
+set_size = 10
 
 
 def dsigmoid(x):
@@ -18,18 +21,23 @@ def dsigmoid(x):
 def create_grayscale_vector_array(image_set):
     arr = []
     count = 0
-    for p in range(len(image_set) // 10):
+    for p in range(len(image_set) // set_size):
         arr.append([])
     for img in image_set:
         grayscale_array = []
         for r in range(len(img)):
             for c in range(len(img[0])):
                 grayscale_array.append([img[r][c] / 255])
-        arr[count // 10].append(np.array(grayscale_array))
+        arr[count // set_size].append(np.array(grayscale_array))
         count += 1
         # if count == 200:
         #     break
     return arr
+
+
+# def update_vect_arr_files(train_arr, test_arr):
+#     np.savetxt("train_vect_arr.txt", train_arr)
+#     np.savetxt("test_vect_arr.txt", test_arr)
 
 
 def mserror(actual_values, predicted_values):
@@ -110,8 +118,8 @@ l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3
 prop_c = 0.01
 
 
-for j in range(20000):
-    train_vect = train_vect_arr[j % 6000]
+for j in range(200):
+    train_vect = train_vect_arr[j % (len(train_images) // set_size)]
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
     l3_wshifts.fill(0)
@@ -130,7 +138,7 @@ for j in range(20000):
         l1.update(train_vect[i])
         l2.update()
         l3.update()
-        total += MSE((j % 6000) * 10 + i)
+        total += MSE((j % (len(train_images) // set_size)) * set_size + i)
 
         da3cost = []
         da2cost = []
@@ -138,7 +146,7 @@ for j in range(20000):
         for k in range(16):
             da2cost.append(0)
             da1cost.append(0)
-        d_a_to_cost((j % 6000) * 10 + i)
+        d_a_to_cost((j % (len(train_images) // set_size)) * set_size + i)
         dza1 = dsigmoid(l1.prod)
         dza2 = dsigmoid(l2.prod)
         dza3 = dsigmoid(l3.prod)
@@ -201,7 +209,7 @@ correct = 0
 tot = 0
 
 for i in range(10000):
-    l1.update(test_vect_arr[i // 10][i % 10])
+    l1.update(test_vect_arr[i // set_size][i % set_size])
     l2.update()
     l3.update()
     maxim = 0
@@ -220,7 +228,6 @@ if percent_correct > float(np.loadtxt("percentcorrect.txt")) and tot == 10000:
     update_text_files()
 
 print(f'{correct} / {tot}')
-print(np.rot90([get_biases(1)], 3))
 
 # l1 = la.Layer(None, val_array=train_images[0])
 # l2 = la.Layer(16, l1)
