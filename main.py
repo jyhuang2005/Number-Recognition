@@ -106,11 +106,11 @@ def get_biases(layer_num):
         return np.loadtxt("l3biases.txt")
 
 
-l1 = la.Layer(32, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
-l2 = la.Layer(32, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
+l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
+l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-prop_c = 0.2
+prop_c = 2.0
 
 
 for j in range(600):
