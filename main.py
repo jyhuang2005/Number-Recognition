@@ -10,7 +10,7 @@ train_labels = idx2numpy.convert_from_file("train-labels-idx1-ubyte")
 test_images = idx2numpy.convert_from_file("t10k-images-idx3-ubyte")
 test_labels = idx2numpy.convert_from_file("t10k-labels-idx1-ubyte")
 
-set_size = 10000
+set_size = 100
 set_num = 60000//set_size
 
 
@@ -110,10 +110,10 @@ l1 = la.Layer(32, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(32, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-prop_c = 1.0
+prop_c = 0.2
 
 
-for j in range(60):
+for j in range(600):
     train_vect = train_vect_arr[j % set_num]
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
@@ -178,7 +178,7 @@ for j in range(60):
 
     avg = total / len(train_vect)
     # print(10 * avg)
-    if j % 1 == 0:
+    if j % 10 == 0:
         print(f'{j} {10 * avg}')
 
     l3_wshifts /= len(train_vect)
