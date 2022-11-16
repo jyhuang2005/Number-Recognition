@@ -58,8 +58,53 @@ def MSE(index):
     return mserror(actuals, predicts)
 
 
-train_vect_arr = create_grayscale_vector_array(train_images)
-test_vect_arr = create_grayscale_vector_array(test_images)
+def create_one_dimensional(arr):
+    return np.array(arr).ravel()
+
+
+def create_reshaped_vector_array(arr, image_set):
+    return np.reshape(arr, (set_num, set_size, 784, 1))
+    # return np.reshape(arr, (28, 28, set_size, image_set // set_size))
+
+
+def write_train_data_to_file():
+    train_arr = create_grayscale_vector_array(train_images)
+
+    train_data = np.reshape(create_one_dimensional(train_arr), (set_num, set_size, 784, 1))
+
+    with open('train_vect_arr.txt', 'w') as outfile:
+        for threeD_data_slice in train_data:
+            for twoD_data_slice in threeD_data_slice:
+                np.savetxt(outfile, twoD_data_slice, fmt='%-7.8f')
+                outfile.write('# New slice\n')
+
+
+def write_test_data_to_file():
+    test_arr = create_grayscale_vector_array(test_images)
+
+    test_data = np.reshape(create_one_dimensional(test_arr), (10000 // set_size, set_size, 784, 1))
+
+    with open('test_vect_arr.txt', 'w') as outfile:
+        for threeD_data_slice in test_data:
+            for twoD_data_slice in threeD_data_slice:
+                np.savetxt(outfile, twoD_data_slice, fmt='%-7.8f')
+                outfile.write('# New slice\n')
+
+
+write_train_data_to_file()  # get rid of these when run once
+write_test_data_to_file()
+
+
+def get_train_vect_arr():
+    return np.loadtxt('train_vect_arr.txt').reshape((set_num, set_size, 784, 1))
+
+
+def get_test_vect_arr():
+    return np.loadtxt('test_vect_arr.txt').reshape((10000 // set_size, set_size, 784, 1))
+
+
+train_vect_arr = get_train_vect_arr()
+test_vect_arr = get_test_vect_arr()
 
 # def top_weights:
 #     # 2 * w * dsigmoid(z) * (a - y)
@@ -109,6 +154,7 @@ def get_biases(layer_num):
 l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
+
 
 prop_c = 2.0
 
@@ -201,6 +247,7 @@ for j in range(600):
     l1.change_weights(l1_wshifts)
     l1.change_biases(l1_bshifts)
 
+
 correct = 0
 tot = 0
 
@@ -228,37 +275,3 @@ if percent_correct > float(np.loadtxt("percentcorrect.txt")) and tot == 10000:
 print(f'{correct} / {tot}')
 print(np.rot90([get_biases(1)], 3))
 
-# l1 = la.Layer(None, val_array=train_images[0])
-# l2 = la.Layer(16, l1)
-# l3 = la.Layer(16, l2)
-# l4 = la.Layer(10, l3)
-#
-# for i in l1.get_neuron_array():
-#     for j in i:
-#         print(j.get_value())
-#
-# for i in l2.get_neuron_array()[0]:
-#     print(i.get_value(), i.get_weights(), i.get_bias())
-#
-# for i in l3.get_neuron_array()[0]:
-#     print(i.get_value(), i.get_weights(), i.get_bias())
-#
-# for i in l4.get_neuron_array()[0]:
-#     print(i.get_value(), i.get_weights(), i.get_bias())
-#
-#
-# for i in range(1, len(train_images)):
-#     l1.update(train_images[i])
-#     l2.update()
-#     l3.update()
-#     l4.update()
-#     print(i)
-#
-# for i in l2.get_neuron_array()[0]:
-#     print(i.get_value(), i.get_weights(), i.get_bias())
-#
-# for i in l3.get_neuron_array()[0]:
-#     print(i.get_value(), i.get_weights(), i.get_bias())
-#
-# for i in l4.get_neuron_array()[0]:
-#     print(i.get_value(), i.get_weights(), i.get_bias())
