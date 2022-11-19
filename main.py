@@ -10,7 +10,9 @@ import pygame
 from pygame.locals import (
     QUIT,
     MOUSEBUTTONUP,
-    MOUSEBUTTONDOWN
+    MOUSEBUTTONDOWN,
+    K_n,
+    KEYDOWN
 )
 
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
@@ -291,15 +293,40 @@ WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
-pixels = []
+drawn_arr = []
 
 
-def create_pixel_array():
+# def create_pixel_array():
+#     for r in range(WIDTH):
+#         pixels.append([])
+#         for c in range(HEIGHT):
+#             pixels[r].append(screen.get_at((r, c)))
+#     return pixels
+
+
+def process_image():
+    pixels = []
+
     for r in range(WIDTH):
         pixels.append([])
         for c in range(HEIGHT):
             pixels[r].append(screen.get_at((r, c)))
-    return pixels
+
+    pixel_size = 25
+    pixelated = np.zeros((28, 28))
+    for r in range(28):
+        for c in range(28):
+
+            av_color = 0
+            for i in range(r * pixel_size, r * pixel_size + pixel_size):
+                for j in range(c * pixel_size, c * pixel_size + pixel_size):
+                    av_color += pixels[j][i][0]
+            pixelated[r][c] = (255 - (av_color / (pixel_size ** 2))) / 255
+    pxls = []
+    for pxl in create_one_dimensional(pixelated):
+        pxls.append([pxl])
+
+    return np.array(pxls)
 
 
 running = True
@@ -310,42 +337,29 @@ while running:
             pygame.draw.circle(screen, (0, 0, 0), (pygame.mouse.get_pos()), 30)
         elif event.type == QUIT:
             running = False
-            create_pixel_array()
+            # create_pixel_array()
+        elif event.type == KEYDOWN:
+            if event.key == K_n:
+                # create_pixel_array()
+                drawn_arr.append(process_image())
+                screen.fill((255, 255, 255))
 
     pressed_keys = pygame.key.get_pressed()
 
     pygame.display.flip()
 
-
-def process_image():
-    pixel_size = 25
-    pixelated = np.zeros((28, 28))
-    for r in range(28):
-        for c in range(28):
-
-            av_color = 0
-            for i in range(r * pixel_size, r * pixel_size + pixel_size):
-                for j in range(c * pixel_size, c * pixel_size + pixel_size):
-                    av_color += pixels[i][j][0]
-            pixelated[r][c] = (255 - (av_color / (pixel_size ** 2))) / 255
-    pxls = []
-    for pxl in create_one_dimensional(pixelated):
-        pxls.append([pxl])
-
-    return np.array(pxls)
+# print(process_image())
 
 
-print(process_image())
+for i in range(len(drawn_arr)):
+    l1.update(drawn_arr[i])
+    l2.update()
+    l3.update()
 
-l1.update(process_image())
-l2.update()
-l3.update()
-
-maxim = 0
-maxim_index = 0
-for j in range(len(l3.matrix)):
-    if l3.matrix[j, 0] > maxim:
-        maxim = l3.matrix[j, 0]
-        maxim_index = j
-print(maxim_index)
-plt.imshow(train_images[0], cmap=plt.cm.binary)
+    maxim = 0
+    maxim_index = 0
+    for j in range(len(l3.matrix)):
+        if l3.matrix[j, 0] > maxim:
+            maxim = l3.matrix[j, 0]
+            maxim_index = j
+    print(maxim_index)
