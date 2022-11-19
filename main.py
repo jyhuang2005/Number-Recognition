@@ -3,15 +3,14 @@ import numpy as np
 import layer as la
 import neuron as n
 from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt
-
-import pygame
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
 
 from pygame.locals import (
     QUIT,
-    MOUSEBUTTONUP,
-    MOUSEBUTTONDOWN,
     K_n,
+    K_ESCAPE,
     KEYDOWN
 )
 
@@ -26,7 +25,7 @@ set_num = 60000 // set_size
 
 
 def dsigmoid(x):
-    return np.exp(x)/np.power((1+np.exp(x)), 2)
+    return np.exp(x) / np.power((1 + np.exp(x)), 2)
 
 
 def create_grayscale_vector_array(image_set):
@@ -289,19 +288,13 @@ if percent_correct > float(np.loadtxt("percentcorrect.txt")) and tot == 10000:
 
 print(f'{correct} / {tot}')
 
+
 WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
+pygame.display.set_caption('Almighty Drawing Canvas')
 
 drawn_arr = []
-
-
-# def create_pixel_array():
-#     for r in range(WIDTH):
-#         pixels.append([])
-#         for c in range(HEIGHT):
-#             pixels[r].append(screen.get_at((r, c)))
-#     return pixels
 
 
 def process_image():
@@ -330,25 +323,29 @@ def process_image():
 
 
 running = True
+stroke_size = 25
 
 while running:
     for event in pygame.event.get():
         if pygame.mouse.get_pressed()[0]:
-            pygame.draw.circle(screen, (0, 0, 0), (pygame.mouse.get_pos()), 30)
+            pygame.draw.circle(screen, (0, 0, 0), (pygame.mouse.get_pos()), stroke_size)
         elif event.type == QUIT:
             running = False
-            # create_pixel_array()
         elif event.type == KEYDOWN:
             if event.key == K_n:
-                # create_pixel_array()
                 drawn_arr.append(process_image())
                 screen.fill((255, 255, 255))
+            elif event.key == K_ESCAPE:
+                running = False
+        elif event.type == pygame.MOUSEWHEEL:
+            if event.y > 0 and stroke_size <= 100:
+                stroke_size += event.y
+            elif event.y < 0 and stroke_size >= 5:
+                stroke_size += event.y
 
     pressed_keys = pygame.key.get_pressed()
 
     pygame.display.flip()
-
-# print(process_image())
 
 
 for i in range(len(drawn_arr)):
