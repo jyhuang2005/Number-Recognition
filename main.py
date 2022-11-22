@@ -362,8 +362,8 @@ while running:
         current_x = pygame.mouse.get_pos()[0]
         current_y = pygame.mouse.get_pos()[1]
         if pygame.mouse.get_pressed()[0]:
-            current_x = pygame.mouse.get_pos()[0]
-            current_y = pygame.mouse.get_pos()[1]
+            # current_x = pygame.mouse.get_pos()[0]
+            # current_y = pygame.mouse.get_pos()[1]
             xdis = previous_x - current_x
             ydis = previous_y - current_y
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
