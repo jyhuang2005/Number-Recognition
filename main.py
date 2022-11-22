@@ -114,8 +114,8 @@ def get_test_vect_arr():
     return np.loadtxt('test_vect_arr.txt').reshape((10000 // set_size, set_size, 784, 1))
 
 
-train_vect_arr = get_train_vect_arr()
-test_vect_arr = get_test_vect_arr()
+# train_vect_arr = get_train_vect_arr()
+# test_vect_arr = get_test_vect_arr()
 
 # def top_weights:
 #     # 2 * w * dsigmoid(z) * (a - y)
