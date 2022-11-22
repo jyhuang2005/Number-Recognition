@@ -67,7 +67,8 @@ def process_image():
                 r_sum += r * (255 - pix[0]) / 255
                 c_sum += c * (255 - pix[0]) / 255
                 pix_count += 1
-
+    if pix_count == 0:
+        return None
     center_x = int(r_sum // pix_count - 350)
     center_y = int(c_sum // pix_count - 350)
     # print(center_x, center_y)
@@ -130,19 +131,19 @@ while running:
             running = False
         elif event.type == KEYDOWN:
             if event.key == K_n:
-                drawn_arr.append(process_image())
+                image = process_image()
+                if image is not None:
+                    drawn_arr.append(image)
                 screen.fill((255, 255, 255))
             elif event.key == K_ESCAPE:
                 running = False
         elif event.type == pygame.MOUSEWHEEL:
-            if event.y > 0:
-                stroke_size += event.y
-            elif event.y < 0:
-                stroke_size += event.y
-            if stroke_size > 150:
-                stroke_size = 150
-            if stroke_size < 1:
+            stroke_size += event.y
+            if stroke_size > 75:
+                stroke_size = 75
+            elif stroke_size < 1:
                 stroke_size = 1
+
             pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
     pygame.display.flip()
