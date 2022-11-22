@@ -6,6 +6,7 @@ from sklearn.metrics import mean_squared_error
 import contextlib
 with contextlib.redirect_stdout(None):
     import pygame
+import matplotlib.pyplot as plt
 
 from pygame.locals import (
     QUIT,
@@ -258,35 +259,35 @@ prop_c = 1.0
 #     l1.change_biases(l1_bshifts)
 
 
-correct = 0
-tot = 0
-
-for i in range(10000):
-    if i == 0:
-        print(test_vect_arr[0][0])
-    l1.update(test_vect_arr[i // set_size][i % set_size])
-    l2.update()
-    l3.update()
-    maxim = 0
-    maxim_index = 0
-    for j in range(len(l3.matrix)):
-        if l3.matrix[j, 0] > maxim:
-            maxim = l3.matrix[j, 0]
-            maxim_index = j
-    print(f'{maxim_index} {test_labels[i]}')
-    # print(test_labels[i])
-    if maxim_index == test_labels[i]:
-        correct += 1
-    else:
-        print("!!!")
-    tot += 1
-percent_correct = correct/tot
-if percent_correct > float(np.loadtxt("percentcorrect.txt")) and tot == 10000:
-    update_text_files()
-# if tot == 10000:
+# correct = 0
+# tot = 0
+#
+# for i in range(10000):
+#     if i == 0:
+#         print(test_vect_arr[0][0])
+#     l1.update(test_vect_arr[i // set_size][i % set_size])
+#     l2.update()
+#     l3.update()
+#     maxim = 0
+#     maxim_index = 0
+#     for j in range(len(l3.matrix)):
+#         if l3.matrix[j, 0] > maxim:
+#             maxim = l3.matrix[j, 0]
+#             maxim_index = j
+#     print(f'{maxim_index} {test_labels[i]}')
+#     # print(test_labels[i])
+#     if maxim_index == test_labels[i]:
+#         correct += 1
+#     else:
+#         print("!!!")
+#     tot += 1
+# percent_correct = correct/tot
+# if percent_correct > float(np.loadtxt("percentcorrect.txt")) and tot == 10000:
 #     update_text_files()
-
-print(f'{correct} / {tot}')
+# # if tot == 10000:
+# #     update_text_files()
+#
+# print(f'{correct} / {tot}')
 
 
 WIDTH, HEIGHT = 700, 700
@@ -300,21 +301,47 @@ drawn_arr = []
 def process_image():
     pixels = []
 
+    r_sum = 0
+    c_sum = 0
+    pix_count = 0
     for r in range(WIDTH):
         pixels.append([])
         for c in range(HEIGHT):
-            pixels[r].append(screen.get_at((r, c)))
+            pix = screen.get_at((r, c))
+            pixels[r].append(pix)
+            if pix[0] != 255:
+                r_sum += r * (255 - pix[0]) / 255
+                c_sum += c * (255 - pix[0]) / 255
+                pix_count += 1
+
+    center_x = int(r_sum // pix_count - 350)
+    center_y = int(c_sum // pix_count - 350)
+    print(center_x, center_y)
 
     pixel_size = 25
     pixelated = np.zeros((28, 28))
     for r in range(28):
         for c in range(28):
-
             av_color = 0
-            for i in range(r * pixel_size, r * pixel_size + pixel_size):
-                for j in range(c * pixel_size, c * pixel_size + pixel_size):
-                    av_color += pixels[j][i][0]
-            pixelated[r][c] = (255 - (av_color / (pixel_size ** 2))) / 255
+            for a in range(r * pixel_size, r * pixel_size + pixel_size):
+                for b in range(c * pixel_size, c * pixel_size + pixel_size):
+                    if 0 < a + center_x < 700 and 0 < b + center_y < 700:
+                        av_color += pixels[a + center_x][b + center_y][0]
+                    else:
+                        av_color += 255
+
+            pixelated[c][r] = (255 - (av_color / (pixel_size ** 2))) / 255
+
+    # for r in range(WIDTH):
+    #     for c in range(HEIGHT):
+    #         if 0 < r + center_x < 700 and 0 < c + center_y < 700:
+    #             pixelated[c // 25][r // 25] += pixels[r + center_x][c + center_y][0]
+    #         else:
+    #             pixelated[c // 25][r // 25] += 255
+    # for r in range(28):
+    #     for c in range(28):
+    #         pixelated[r][c] = (255 - (pixelated[r][c] / (pixel_size ** 2))) / 255
+
     pxls = []
     for pxl in create_one_dimensional(pixelated):
         pxls.append([pxl])
@@ -360,3 +387,4 @@ for i in range(len(drawn_arr)):
             maxim = l3.matrix[j, 0]
             maxim_index = j
     print(maxim_index)
+
