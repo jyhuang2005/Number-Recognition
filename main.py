@@ -121,11 +121,6 @@ def get_test_vect_arr():
 # train_vect_arr = get_train_vect_arr()
 # test_vect_arr = get_test_vect_arr()
 
-# def top_weights:
-#     # 2 * w * dsigmoid(z) * (a - y)
-#
-# def propagate_weights:
-
 
 def d_a_to_cost(index):
     temp_matrix = l3.matrix
