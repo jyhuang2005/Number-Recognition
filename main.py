@@ -108,35 +108,36 @@ running = True
 stroke_size = 25
 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 previous_x, previous_y = 0, 0
+first = True
 
 while running:
     for event in pygame.event.get():
         current_x = pygame.mouse.get_pos()[0]
         current_y = pygame.mouse.get_pos()[1]
+
+        if event.type == KEYDOWN:
+            if event.key == K_n:
+                drawn_arr.append(process_image())
+                screen.fill((255, 255, 255))
+                first = True
+            elif event.key == K_ESCAPE:
+                running = False
+
         if pygame.mouse.get_pressed()[0]:
-            # current_x = pygame.mouse.get_pos()[0]
-            # current_y = pygame.mouse.get_pos()[1]
             xdis = current_x - previous_x
             ydis = current_y - previous_y
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
             pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
-            print(xdis, current_x, previous_x)
-            for c in range(dis):
-                if dis != 0:
+            if not first:
+                for c in range(dis):
                     pygame.draw.circle(screen, (0, 0, 0), (current_x - ((c * xdis) / dis), current_y - ((c * ydis) / dis)), stroke_size)
-                else:
-                    pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
+            else:
+                pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
+                first = False
         previous_x, previous_y = current_x, current_y
+
         if event.type == QUIT:
             running = False
-        elif event.type == KEYDOWN:
-            if event.key == K_n:
-                image = process_image()
-                if image is not None:
-                    drawn_arr.append(image)
-                screen.fill((255, 255, 255))
-            elif event.key == K_ESCAPE:
-                running = False
         elif event.type == pygame.MOUSEWHEEL:
             stroke_size += event.y
             if stroke_size > 75:
