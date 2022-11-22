@@ -1,3 +1,5 @@
+import math
+
 import idx2numpy
 import numpy as np
 import layer as la
@@ -12,7 +14,9 @@ from pygame.locals import (
     QUIT,
     K_n,
     K_ESCAPE,
-    KEYDOWN
+    KEYDOWN,
+    MOUSEBUTTONUP,
+    MOUSEBUTTONDOWN
 )
 
 train_images = idx2numpy.convert_from_file("train-images-idx3-ubyte")
@@ -293,7 +297,6 @@ prop_c = 1.0
 WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
-pygame.display.set_caption('Almighty Drawing Canvas')
 
 drawn_arr = []
 
@@ -316,7 +319,7 @@ def process_image():
 
     center_x = int(r_sum // pix_count - 350)
     center_y = int(c_sum // pix_count - 350)
-    print(center_x, center_y)
+    # print(center_x, center_y)
 
     pixel_size = 25
     pixelated = np.zeros((28, 28))
@@ -351,12 +354,28 @@ def process_image():
 
 running = True
 stroke_size = 25
+pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
+previous_x, previous_y = 0, 0
 
 while running:
     for event in pygame.event.get():
+        current_x = pygame.mouse.get_pos()[0]
+        current_y = pygame.mouse.get_pos()[1]
         if pygame.mouse.get_pressed()[0]:
-            pygame.draw.circle(screen, (0, 0, 0), (pygame.mouse.get_pos()), stroke_size)
-        elif event.type == QUIT:
+            current_x = pygame.mouse.get_pos()[0]
+            current_y = pygame.mouse.get_pos()[1]
+            xdis = previous_x - current_x
+            ydis = previous_y - current_y
+            dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
+            # pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y + 50), stroke_size)
+            print(xdis, current_x, previous_x)
+            for c in range(dis + 1):
+                if dis != 0:
+                    pygame.draw.circle(screen, (0, 0, 0), (current_x - ((c * xdis) / dis), current_y - ((c * ydis) / dis)), stroke_size)
+                else:
+                    pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
+        previous_x, previous_y = current_x, current_y
+        if event.type == QUIT:
             running = False
         elif event.type == KEYDOWN:
             if event.key == K_n:
@@ -365,12 +384,15 @@ while running:
             elif event.key == K_ESCAPE:
                 running = False
         elif event.type == pygame.MOUSEWHEEL:
-            if event.y > 0 and stroke_size <= 100:
+            if event.y > 0:
                 stroke_size += event.y
-            elif event.y < 0 and stroke_size >= 5:
+            elif event.y < 0:
                 stroke_size += event.y
-
-    pressed_keys = pygame.key.get_pressed()
+            if stroke_size > 150:
+                stroke_size = 150
+            if stroke_size < 1:
+                stroke_size = 1
+            pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
     pygame.display.flip()
 
