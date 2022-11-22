@@ -115,12 +115,12 @@ while running:
         if pygame.mouse.get_pressed()[0]:
             # current_x = pygame.mouse.get_pos()[0]
             # current_y = pygame.mouse.get_pos()[1]
-            xdis = previous_x - current_x
-            ydis = previous_y - current_y
+            xdis = current_x - previous_x
+            ydis = current_y - previous_y
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
-            # pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y + 50), stroke_size)
+            pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
             print(xdis, current_x, previous_x)
-            for c in range(dis + 1):
+            for c in range(dis):
                 if dis != 0:
                     pygame.draw.circle(screen, (0, 0, 0), (current_x - ((c * xdis) / dis), current_y - ((c * ydis) / dis)), stroke_size)
                 else:
