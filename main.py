@@ -129,7 +129,19 @@ def process_image():
         for r in range(28):
             for c in range(28):
                 if pixelated[r][c] != 0:
-                    pixelated[r][c] = 2
+                    pixelated[r][c] = 1
+
+        for r in range(28):
+            for c in range(28):
+                if pixelated[r][c] == 1:
+                    if c > 0 and pixelated[r][c - 1] == 0:
+                        pixelated[r][c - 1] = 0.9
+                    if c < 27 and pixelated[r][c + 1] == 0:
+                        pixelated[r][c + 1] = 0.9
+                    if r > 0 and pixelated[r - 1][c] == 0:
+                        pixelated[r - 1][c] = 0.9
+                    if r < 27 and pixelated[r + 1][c] == 0:
+                        pixelated[r + 1][c] = 0.9
 
     # print(min_x, max_x, min_y, max_y)
 
