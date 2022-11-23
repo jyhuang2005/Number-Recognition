@@ -100,6 +100,7 @@ def process_image():
 
     pixel_size = 25
     pixelated = np.zeros((28, 28))
+    max_shade = 0
     for r in range(28):
         for c in range(28):
             av_color = 0
@@ -112,7 +113,16 @@ def process_image():
                     else:
                         av_color += 255
 
-            pixelated[c][r] = (255 - (av_color / (pixel_size ** 2))) / 255
+            adjusted_shade = (255 - (av_color / (pixel_size ** 2))) / 255
+            pixelated[c][r] = adjusted_shade
+            if adjusted_shade > max_shade:
+                max_shade = adjusted_shade
+
+    if max_shade != 1:
+        shade_scale = 1 / max_shade
+        for r in range(28):
+            for c in range(28):
+                pixelated[r][c] *= shade_scale
 
     # for r in range(WIDTH):
     #     for c in range(HEIGHT):
