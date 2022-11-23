@@ -53,6 +53,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
 drawn_arr = []
+guess_arr = []
 
 
 def process_image():
@@ -123,6 +124,8 @@ def process_image():
             total_shade += adjusted_shade
             needs_adjustment *= min(1, 1.8 - adjusted_shade)
 
+    # needs fix: after shade adjustment, number too big
+
     if needs_adjustment > 0.001:
         for r in range(28):
             for c in range(28):
@@ -131,15 +134,15 @@ def process_image():
 
         for r in range(28):
             for c in range(28):
-                if pixelated[r][c] > 0.3:
+                if pixelated[r][c] > 0.9:
                     if c > 0 and pixelated[r][c - 1] == 0:
-                        pixelated[r][c - 1] = min(0.3, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r][c - 1] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
                     if c < 27 and pixelated[r][c + 1] == 0:
-                        pixelated[r][c + 1] = min(0.3, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r][c + 1] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
                     if r > 0 and pixelated[r - 1][c] == 0:
-                        pixelated[r - 1][c] = min(0.3, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r - 1][c] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
                     if r < 27 and pixelated[r + 1][c] == 0:
-                        pixelated[r + 1][c] = min(0.3, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r + 1][c] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
 
     # print(min_x, max_x, min_y, max_y)
 
@@ -148,6 +151,20 @@ def process_image():
         pxls.append([pxl])
 
     return np.array(pxls)
+
+
+def analyze(img):
+    l1.update(img)
+    l2.update()
+    l3.update()
+
+    maxim = 0
+    maxim_index = 0
+    for j in range(len(l3.matrix)):
+        if l3.matrix[j, 0] > maxim:
+            maxim = l3.matrix[j, 0]
+            maxim_index = j
+    return maxim_index
 
 
 def show_pixelated(num):
@@ -181,6 +198,7 @@ while running:
                 image = process_image()
                 if image is not None:
                     drawn_arr.append(image)
+                    guess_arr.append(analyze(image))
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_v:
@@ -204,7 +222,7 @@ while running:
             elif event.key == K_ESCAPE:
                 running = False
             if viewing:
-                pygame.display.set_caption(f'Drawing {view_num + 1}/{len(drawn_arr)} of the Almighty Drawing Canvas')
+                pygame.display.set_caption(f'Drawing {view_num + 1}/{len(drawn_arr)} of the Almighty Drawing Canvas; Guess: {guess_arr[view_num]}')
             else:
                 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
@@ -232,16 +250,3 @@ while running:
 
     pygame.display.flip()
 
-
-for i in range(len(drawn_arr)):
-    l1.update(drawn_arr[i])
-    l2.update()
-    l3.update()
-
-    maxim = 0
-    maxim_index = 0
-    for j in range(len(l3.matrix)):
-        if l3.matrix[j, 0] > maxim:
-            maxim = l3.matrix[j, 0]
-            maxim_index = j
-    print(maxim_index)
