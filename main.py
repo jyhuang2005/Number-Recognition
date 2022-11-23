@@ -11,6 +11,10 @@ with contextlib.redirect_stdout(None):
 from pygame.locals import (
     QUIT,
     K_SPACE,
+    K_c,
+    K_v,
+    K_n,
+    K_b,
     K_ESCAPE,
     KEYDOWN
 )
@@ -131,11 +135,26 @@ def process_image():
     return np.array(pxls)
 
 
+def show_pixelated(num):
+    screen.fill((255, 255, 255))
+    i = 0
+
+    for r in range(0, 700, stroke_size):
+        for c in range(0, 700, stroke_size):
+            for k in range(r, r + stroke_size):
+                for l in range(c, c + stroke_size):
+                    grayscale_value = 255 - drawn_arr[num][i] * 255
+                    pygame.draw.circle(screen, (grayscale_value, grayscale_value, grayscale_value), (l, k), 1)
+            i += 1
+
+
 running = True
 stroke_size = 25
 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 previous_x, previous_y = 0, 0
 first = True
+viewing = False
+view_num = 0
 
 while running:
     for event in pygame.event.get():
@@ -149,10 +168,28 @@ while running:
                     drawn_arr.append(image)
                 screen.fill((255, 255, 255))
                 first = True
+            elif event.key == K_v:
+                if not viewing and len(drawn_arr) > 0:
+                    show_pixelated(view_num)
+                    viewing = True
+                elif viewing:
+                    viewing = False
+                    screen.fill((255, 255, 255))
+                    view_num = 0
+            elif event.key == K_n and viewing:
+                if len(drawn_arr) > view_num + 1:
+                    view_num += 1
+                    show_pixelated(view_num)
+            elif event.key == K_b and viewing:
+                if view_num > 0:
+                    view_num -= 1
+                    show_pixelated(view_num)
+            elif event.key == K_c:
+                screen.fill((255, 255, 255))
             elif event.key == K_ESCAPE:
                 running = False
 
-        elif pygame.mouse.get_pressed()[0]:
+        elif pygame.mouse.get_pressed()[0] and not viewing:
             xdis = current_x - previous_x
             ydis = current_y - previous_y
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
