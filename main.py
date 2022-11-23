@@ -13,8 +13,8 @@ from pygame.locals import (
     K_SPACE,
     K_c,
     K_v,
-    K_n,
-    K_b,
+    K_RIGHT,
+    K_LEFT,
     K_ESCAPE,
     KEYDOWN
 )
@@ -176,11 +176,11 @@ while running:
                     viewing = False
                     screen.fill((255, 255, 255))
                     view_num = 0
-            elif event.key == K_n and viewing:
+            elif event.key == K_RIGHT and viewing:
                 if len(drawn_arr) > view_num + 1:
                     view_num += 1
                     show_pixelated(view_num)
-            elif event.key == K_b and viewing:
+            elif event.key == K_LEFT and viewing:
                 if view_num > 0:
                     view_num -= 1
                     show_pixelated(view_num)
