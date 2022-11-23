@@ -1,10 +1,7 @@
 import math
-import random
 
-import idx2numpy
 import numpy as np
 import layer as la
-from sklearn.metrics import mean_squared_error
 import contextlib
 with contextlib.redirect_stdout(None):
     import pygame
@@ -14,6 +11,7 @@ from pygame.locals import (
     K_SPACE,
     K_c,
     K_v,
+    K_r,
     K_RIGHT,
     K_LEFT,
     K_ESCAPE,
@@ -213,16 +211,27 @@ while running:
                 if len(drawn_arr) > view_num + 1:
                     view_num += 1
                     show_pixelated(view_num)
+                elif len(drawn_arr) > 1:
+                    view_num = 0
+                    show_pixelated(view_num)
             elif event.key == K_LEFT and viewing:
                 if view_num > 0:
                     view_num -= 1
                     show_pixelated(view_num)
+                elif len(drawn_arr) > 1:
+                    view_num = len(drawn_arr) - 1
+                    show_pixelated(view_num)
             elif event.key == K_c and not viewing:
                 screen.fill((255, 255, 255))
+            elif event.key == K_r and viewing:
+                screen.fill((255, 255, 255))
+                drawn_arr.clear()
+                viewing = False
+                view_num = 0
             elif event.key == K_ESCAPE:
                 running = False
             if viewing:
-                pygame.display.set_caption(f'Drawing {view_num + 1}/{len(drawn_arr)} of the Almighty Drawing Canvas; Guess: {guess_arr[view_num]}')
+                pygame.display.set_caption(f'Viewing {view_num + 1}/{len(drawn_arr)} - Guess: {guess_arr[view_num]}')
             else:
                 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
@@ -250,3 +259,5 @@ while running:
 
     pygame.display.flip()
 
+# for img in drawn_arr:
+#     print(analyze(img))
