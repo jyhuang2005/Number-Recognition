@@ -10,11 +10,9 @@ with contextlib.redirect_stdout(None):
 
 from pygame.locals import (
     QUIT,
-    K_n,
+    K_SPACE,
     K_ESCAPE,
-    KEYDOWN,
-    MOUSEBUTTONUP,
-    MOUSEBUTTONDOWN
+    KEYDOWN
 )
 
 
@@ -115,15 +113,15 @@ while running:
         current_x = pygame.mouse.get_pos()[0]
         current_y = pygame.mouse.get_pos()[1]
 
-        if event.type == KEYDOWN:
-            if event.key == K_n:
+        if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
+            if event.key == K_SPACE:
                 drawn_arr.append(process_image())
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_ESCAPE:
                 running = False
 
-        if pygame.mouse.get_pressed()[0]:
+        elif pygame.mouse.get_pressed()[0]:
             xdis = current_x - previous_x
             ydis = current_y - previous_y
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
