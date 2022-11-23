@@ -139,12 +139,12 @@ def show_pixelated(num):
     screen.fill((255, 255, 255))
     i = 0
 
-    for r in range(0, 700, stroke_size):
-        for c in range(0, 700, stroke_size):
-            for k in range(r, r + stroke_size):
-                for l in range(c, c + stroke_size):
-                    grayscale_value = 255 - drawn_arr[num][i] * 255
-                    pygame.draw.circle(screen, (grayscale_value, grayscale_value, grayscale_value), (l, k), 1)
+    for r in range(0, 700, 25):
+        for c in range(0, 700, 25):
+            grayscale_value = max(0, 255 - drawn_arr[num][i] * 255)
+            for k in range(r, r + 25):
+                for l in range(c, c + 25):
+                    pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value), (l, k, 1, 1))
             i += 1
 
 
@@ -162,7 +162,7 @@ while running:
         current_y = pygame.mouse.get_pos()[1]
 
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
-            if event.key == K_SPACE:
+            if event.key == K_SPACE and not viewing:
                 image = process_image()
                 if image is not None:
                     drawn_arr.append(image)
@@ -184,7 +184,7 @@ while running:
                 if view_num > 0:
                     view_num -= 1
                     show_pixelated(view_num)
-            elif event.key == K_c:
+            elif event.key == K_c and not viewing:
                 screen.fill((255, 255, 255))
             elif event.key == K_ESCAPE:
                 running = False
