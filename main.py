@@ -60,7 +60,6 @@ def process_image():
     max_x = None
     min_y = None
     max_y = None
-    scale = 1
     for r in range(WIDTH):
         pixels.append([])
         for c in range(HEIGHT):
@@ -123,17 +122,7 @@ def process_image():
         for r in range(28):
             for c in range(28):
                 if pixelated[r][c] != 0:
-                    pixelated[r][c] = 1
-
-    # for r in range(WIDTH):
-    #     for c in range(HEIGHT):
-    #         if 0 < r + center_x < 700 and 0 < c + center_y < 700:
-    #             pixelated[c // 25][r // 25] += pixels[r + center_x][c + center_y][0]
-    #         else:
-    #             pixelated[c // 25][r // 25] += 255
-    # for r in range(28):
-    #     for c in range(28):
-    #         pixelated[r][c] = (255 - (pixelated[r][c] / (pixel_size ** 2))) / 255
+                    pixelated[r][c] = 2
 
     pxls = []
     for pxl in create_one_dimensional(pixelated):
@@ -155,7 +144,9 @@ while running:
 
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
             if event.key == K_SPACE:
-                drawn_arr.append(process_image())
+                image = process_image()
+                if image is not None:
+                    drawn_arr.append(process_image())
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_ESCAPE:
