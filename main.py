@@ -205,6 +205,10 @@ while running:
                 screen.fill((255, 255, 255))
             elif event.key == K_ESCAPE:
                 running = False
+            if viewing:
+                pygame.display.set_caption(f'Drawing {view_num + 1}/{len(drawn_arr)} of the Almighty Drawing Canvas')
+            else:
+                pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
         elif pygame.mouse.get_pressed()[0] and not viewing:
             xdis = current_x - previous_x
@@ -217,18 +221,16 @@ while running:
             else:
                 pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
                 first = False
-        previous_x, previous_y = current_x, current_y
-
-        if event.type == QUIT:
+        elif event.type == QUIT:
             running = False
-        elif event.type == pygame.MOUSEWHEEL:
+        elif event.type == pygame.MOUSEWHEEL and not viewing:
             stroke_size += event.y
-            if stroke_size > 1000:
-                stroke_size = 1000
+            if stroke_size > 500:
+                stroke_size = 500
             elif stroke_size < 1:
                 stroke_size = 1
-
             pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
+        previous_x, previous_y = current_x, current_y
 
     pygame.display.flip()
 
