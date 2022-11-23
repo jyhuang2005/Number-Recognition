@@ -146,7 +146,7 @@ while running:
             if event.key == K_SPACE:
                 image = process_image()
                 if image is not None:
-                    drawn_arr.append(process_image())
+                    drawn_arr.append(image)
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_ESCAPE:
