@@ -56,6 +56,11 @@ def process_image():
     r_sum = 0
     c_sum = 0
     pix_count = 0
+    min_x = None
+    max_x = None
+    min_y = None
+    max_y = None
+    scale = 1
     for r in range(WIDTH):
         pixels.append([])
         for c in range(HEIGHT):
@@ -65,11 +70,33 @@ def process_image():
                 r_sum += r * (255 - pix[0]) / 255
                 c_sum += c * (255 - pix[0]) / 255
                 pix_count += 1
+                if min_x is None:
+                    min_x = r
+                elif r < min_x:
+                    min_x = r
+                if max_x is None:
+                    max_x = r
+                elif r > max_x:
+                    max_x = r
+                if min_y is None:
+                    min_y = c
+                elif c < min_y:
+                    min_y = c
+                if max_y is None:
+                    max_y = c
+                elif c > max_y:
+                    max_y = c
+
     if pix_count == 0:
         return None
-    center_x = int(r_sum // pix_count - 350)
-    center_y = int(c_sum // pix_count - 350)
-    # print(center_x, center_y)
+
+    center_x = r_sum // pix_count - WIDTH/2
+    center_y = c_sum // pix_count - HEIGHT/2
+
+    print(min_x, max_x, min_y, max_y)
+    scale = max(max_x - min_x, max_y - min_y) / (20 * WIDTH / 28)
+    scale_constant = WIDTH * (1 - scale) / 2
+    print(scale, scale_constant)
 
     pixel_size = 25
     pixelated = np.zeros((28, 28))
@@ -78,8 +105,10 @@ def process_image():
             av_color = 0
             for a in range(r * pixel_size, r * pixel_size + pixel_size):
                 for b in range(c * pixel_size, c * pixel_size + pixel_size):
-                    if 0 < a + center_x < 700 and 0 < b + center_y < 700:
-                        av_color += pixels[a + center_x][b + center_y][0]
+                    real_a = int(a * scale + scale_constant + center_x)
+                    real_b = int(b * scale + scale_constant + center_y)
+                    if 0 < real_a < WIDTH and 0 < real_b < HEIGHT:
+                        av_color += pixels[real_a][real_b][0]
                     else:
                         av_color += 255
 
