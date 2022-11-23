@@ -226,6 +226,7 @@ while running:
             elif event.key == K_r and viewing:
                 screen.fill((255, 255, 255))
                 drawn_arr.clear()
+                guess_arr.clear()
                 viewing = False
                 view_num = 0
             elif event.key == K_ESCAPE:
