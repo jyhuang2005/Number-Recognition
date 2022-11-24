@@ -159,7 +159,7 @@ l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 
 l3 = la.Layer(47, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
 
-prop_c = 3.0
+prop_c = 2.0
 
 
 for j in range(600):
@@ -255,8 +255,6 @@ correct = 0
 tot = 0
 
 for i in range(18800):
-    if i == 0:
-        print(test_vect_arr[0][0])
     l1.update(test_vect_arr[i // set_size][i % set_size])
     l2.update()
     l3.update()

@@ -164,7 +164,7 @@ def analyze(img):
         if l3.matrix[j, 0] > maxim:
             maxim = l3.matrix[j, 0]
             maxim_index = j
-    return labels[maxim_index]
+    return maxim_index
 
 
 def show_pixelated(num):
@@ -232,7 +232,7 @@ while running:
             elif event.key == K_ESCAPE:
                 running = False
             if viewing:
-                pygame.display.set_caption(f'Viewing {view_num + 1}/{len(drawn_arr)} - Guess: {guess_arr[view_num]}')
+                pygame.display.set_caption(f'Viewing {view_num + 1}/{len(drawn_arr)} - Guess: {labels[guess_arr[view_num]]} ({guess_arr[view_num]})')
             else:
                 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
