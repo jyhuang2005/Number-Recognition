@@ -172,9 +172,7 @@ def show_pixelated(num):
     for r in range(0, 700, 25):
         for c in range(0, 700, 25):
             grayscale_value = max(0, 255 - drawn_arr[num][i] * 255)
-            for k in range(r + 1, r + 24):
-                for l in range(c + 1, c + 24):
-                    pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value), (l, k, 1, 1))
+            pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value), (c, r, 25, 25))
             i += 1
 
 
