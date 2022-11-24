@@ -18,6 +18,8 @@ from pygame.locals import (
     KEYDOWN
 )
 
+labels = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabdefghnqrt"
+
 
 def create_one_dimensional(arr):
     return np.array(arr).ravel()
@@ -25,20 +27,20 @@ def create_one_dimensional(arr):
 
 def get_weights(layer_num):
     if layer_num == 1:
-        return np.loadtxt("l1weights.txt")
+        return np.loadtxt("emnist_l1weights.txt")
     elif layer_num == 2:
-        return np.loadtxt("l2weights.txt")
+        return np.loadtxt("emnist_l2weights.txt")
     elif layer_num == 3:
-        return np.loadtxt("l3weights.txt")
+        return np.loadtxt("emnist_l3weights.txt")
 
 
 def get_biases(layer_num):
     if layer_num == 1:
-        return np.loadtxt("l1biases.txt")
+        return np.loadtxt("emnist_l1biases.txt")
     elif layer_num == 2:
-        return np.loadtxt("l2biases.txt")
+        return np.loadtxt("emnist_l2biases.txt")
     elif layer_num == 3:
-        return np.loadtxt("l3biases.txt")
+        return np.loadtxt("emnist_l3biases.txt")
 
 
 l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
@@ -162,7 +164,7 @@ def analyze(img):
         if l3.matrix[j, 0] > maxim:
             maxim = l3.matrix[j, 0]
             maxim_index = j
-    return maxim_index
+    return labels[maxim_index]
 
 
 def show_pixelated(num):
