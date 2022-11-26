@@ -159,7 +159,7 @@ l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 
 l3 = la.Layer(47, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
 
-prop_c = 2.0
+prop_c = 0.5
 
 
 for j in range(600):

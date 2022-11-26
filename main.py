@@ -25,22 +25,25 @@ def create_one_dimensional(arr):
     return np.array(arr).ravel()
 
 
+prefix = "emnist_"
+
+
 def get_weights(layer_num):
     if layer_num == 1:
-        return np.loadtxt("emnist_l1weights.txt")
+        return np.loadtxt(prefix + "l1weights.txt")
     elif layer_num == 2:
-        return np.loadtxt("emnist_l2weights.txt")
+        return np.loadtxt(prefix + "l2weights.txt")
     elif layer_num == 3:
-        return np.loadtxt("emnist_l3weights.txt")
+        return np.loadtxt(prefix + "l3weights.txt")
 
 
 def get_biases(layer_num):
     if layer_num == 1:
-        return np.loadtxt("emnist_l1biases.txt")
+        return np.loadtxt(prefix + "l1biases.txt")
     elif layer_num == 2:
-        return np.loadtxt("emnist_l2biases.txt")
+        return np.loadtxt(prefix + "l2biases.txt")
     elif layer_num == 3:
-        return np.loadtxt("emnist_l3biases.txt")
+        return np.loadtxt(prefix + "l3biases.txt")
 
 
 l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
