@@ -70,6 +70,7 @@ def process_image():
             pix = screen.get_at((r, c))
             pixels[r].append(pix)
             if pix[0] != 255:
+                # print(pix[0])
                 r_sum += r * (255 - pix[0]) / 255
                 c_sum += c * (255 - pix[0]) / 255
                 pix_count += 1
@@ -78,38 +79,44 @@ def process_image():
                 elif r < min_x:
                     min_x = r
                 if max_x is None:
-                    max_x = r
-                elif r > max_x:
-                    max_x = r
+                    max_x = r + 1
+                elif r + 1 > max_x:
+                    max_x = r + 1
                 if min_y is None:
                     min_y = c
                 elif c < min_y:
                     min_y = c
                 if max_y is None:
-                    max_y = c
-                elif c > max_y:
-                    max_y = c
+                    max_y = c + 1
+                elif c + 1 > max_y:
+                    max_y = c + 1
 
+    need_fix = 0
     if pix_count == 0:
         return None
+    elif pix_count/pow(max(max_x - min_x, max_y - min_y), 2) < 0.12:
+        need_fix = 2
 
     center_x = r_sum // pix_count - WIDTH/2
     center_y = c_sum // pix_count - HEIGHT/2
 
-    scale = max(max_x - min_x, max_y - min_y) / (19.93 * WIDTH / 28)
+    # print(max(max_x - min_x, max_y - min_y))
+    scale = max(max_x - min_x, max_y - min_y) / ((20 - need_fix) * WIDTH / 28)
     scale_constant = WIDTH * (1 - scale) / 2
+    # print(scale, scale_constant)
 
     pixel_size = 25
     pixelated = np.zeros((28, 28))
-    needs_adjustment = 1
     total_shade = 0
     for r in range(28):
         for c in range(28):
             av_color = 0
-            for a in range(r * pixel_size + 1, (r + 1) * pixel_size + 1):
-                for b in range(c * pixel_size + 1, (c + 1) * pixel_size + 1):
-                    true_a = int(a * scale + scale_constant + center_x)
-                    true_b = int(b * scale + scale_constant + center_y)
+            for a in range(r * pixel_size, (r + 1) * pixel_size):
+                for b in range(c * pixel_size, (c + 1) * pixel_size):
+                    true_a = round((a + 0.5) * scale + scale_constant + center_x + 0.5)
+                    true_b = round((b + 0.5) * scale + scale_constant + center_y + 0.5)
+                    # if r == 6 and c == 6:
+                    #     print(center_x + WIDTH // 2, true_a)
                     # if r == 4 or r == 23:
                     #     print(r, c, true_a, true_b)
                     if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
@@ -120,27 +127,26 @@ def process_image():
             adjusted_shade = (255 - (av_color / (pixel_size ** 2))) / 255
             pixelated[c][r] = adjusted_shade
             total_shade += adjusted_shade
-            needs_adjustment *= min(1, 1.8 - adjusted_shade)
 
     # needs fix: after shade adjustment, number too big
 
-    if needs_adjustment > 0.001:
+    if need_fix == 2:
         for r in range(28):
             for c in range(28):
                 if pixelated[r][c] != 0:
-                    pixelated[r][c] = min(1, pixelated[r][c] + needs_adjustment)
+                    pixelated[r][c] = 1
 
         for r in range(28):
             for c in range(28):
                 if pixelated[r][c] > 0.9:
                     if c > 0 and pixelated[r][c - 1] == 0:
-                        pixelated[r][c - 1] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r][c - 1] = 0.9
                     if c < 27 and pixelated[r][c + 1] == 0:
-                        pixelated[r][c + 1] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r][c + 1] = 0.9
                     if r > 0 and pixelated[r - 1][c] == 0:
-                        pixelated[r - 1][c] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r - 1][c] = 0.9
                     if r < 27 and pixelated[r + 1][c] == 0:
-                        pixelated[r + 1][c] = min(0.9, pixelated[r][c] + needs_adjustment / 2)
+                        pixelated[r + 1][c] = 0.9
 
     # print(min_x, max_x, min_y, max_y)
 
