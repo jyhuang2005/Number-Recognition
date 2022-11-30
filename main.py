@@ -11,6 +11,7 @@ from pygame.locals import (
     K_SPACE,
     K_c,
     K_v,
+    K_p,
     K_r,
     K_RIGHT,
     K_LEFT,
@@ -60,6 +61,7 @@ def process_image():
     r_sum = 0
     c_sum = 0
     pix_count = 0
+    color_sum = 0
     min_x = None
     max_x = None
     min_y = None
@@ -71,9 +73,11 @@ def process_image():
             pixels[r].append(pix)
             if pix[0] != 255:
                 # print(pix[0])
-                r_sum += r * (255 - pix[0]) / 255
-                c_sum += c * (255 - pix[0]) / 255
+                pix_color = (255 - pix[0]) / 255
+                r_sum += r * pix_color
+                c_sum += c * pix_color
                 pix_count += 1
+                color_sum += pix_color
                 if min_x is None:
                     min_x = r
                 elif r < min_x:
@@ -94,7 +98,7 @@ def process_image():
     need_fix = 0
     if pix_count == 0:
         return None
-    elif pix_count/pow(max(max_x - min_x, max_y - min_y), 2) < 0.12:
+    elif color_sum/pow(max(max_x - min_x, max_y - min_y), 2) < 0.1:
         need_fix = 2
 
     center_x = r_sum // pix_count - WIDTH/2
