@@ -194,7 +194,8 @@ def show_pixelated(num):
     for r in range(0, 700, 25):
         for c in range(0, 700, 25):
             grayscale_value = max(0, 255 - processed_arr[num][i] * 255)
-            pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value), (c, r, 25, 25))
+            if grayscale_value != 255:
+                pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value), (c, r, 25, 25))
             i += 1
 
 
@@ -231,17 +232,19 @@ while running:
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_v:
-                if not (viewing_orig or viewing_pix) and len(processed_arr) > 0:
+                if not viewing_orig and len(processed_arr) > 0:
                     show_image(view_num)
                     viewing_orig = True
+                    viewing_pix = False
                 elif viewing_orig:
                     viewing_orig = False
                     screen.fill((255, 255, 255))
                     view_num = 0
             elif event.key == K_p:
-                if not (viewing_orig or viewing_pix) and len(processed_arr) > 0:
+                if not viewing_pix and len(processed_arr) > 0:
                     show_pixelated(view_num)
                     viewing_pix = True
+                    viewing_orig = False
                 elif viewing_pix:
                     viewing_pix = False
                     screen.fill((255, 255, 255))
