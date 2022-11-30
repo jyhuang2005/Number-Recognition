@@ -17,6 +17,7 @@ test_images, test_labels = emnist.extract_test_samples('balanced')
 set_size = 100
 set_num = len(train_images) // set_size
 test_size = len(test_images)
+prefix = "emnist_"
 
 
 def dsigmoid(x):
@@ -72,7 +73,7 @@ def write_train_data_to_file():
 
     train_data = np.reshape(create_one_dimensional(train_arr), (set_num, set_size, 784, 1))
 
-    with open('emnist_train_vect_arr.txt', 'w') as outfile:
+    with open(prefix + 'train_vect_arr.txt', 'w') as outfile:
         for threeD_data_slice in train_data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-7.8f')
@@ -84,7 +85,7 @@ def write_test_data_to_file():
 
     test_data = np.reshape(create_one_dimensional(test_arr), (test_size // set_size, set_size, 784, 1))
 
-    with open('emnist_test_vect_arr.txt', 'w') as outfile:
+    with open(prefix + 'test_vect_arr.txt', 'w') as outfile:
         for threeD_data_slice in test_data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-7.8f')
@@ -96,11 +97,11 @@ def write_test_data_to_file():
 
 
 def get_train_vect_arr():
-    return np.loadtxt('emnist_train_vect_arr.txt').reshape((set_num, set_size, 784, 1))
+    return np.loadtxt(prefix + 'train_vect_arr.txt').reshape((set_num, set_size, 784, 1))
 
 
 def get_test_vect_arr():
-    return np.loadtxt('emnist_test_vect_arr.txt').reshape((test_size // set_size, set_size, 784, 1))
+    return np.loadtxt(prefix + 'test_vect_arr.txt').reshape((test_size // set_size, set_size, 784, 1))
 
 
 train_vect_arr = get_train_vect_arr()
@@ -118,32 +119,32 @@ def d_a_to_cost(index):
 
 
 def update_text_files():
-    with open('emnist_percentcorrect.txt', 'w') as f:
+    with open(prefix + 'percentcorrect.txt', 'w') as f:
         f.write(str(percent_correct))
-    np.savetxt("emnist_l1weights.txt", l1.weights)
-    np.savetxt("emnist_l2weights.txt", l2.weights)
-    np.savetxt("emnist_l3weights.txt", l3.weights)
-    np.savetxt("emnist_l1biases.txt", l1.biases)
-    np.savetxt("emnist_l2biases.txt", l2.biases)
-    np.savetxt("emnist_l3biases.txt", l3.biases)
+    np.savetxt(prefix + "l1weights.txt", l1.weights)
+    np.savetxt(prefix + "l2weights.txt", l2.weights)
+    np.savetxt(prefix + "l3weights.txt", l3.weights)
+    np.savetxt(prefix + "l1biases.txt", l1.biases)
+    np.savetxt(prefix + "l2biases.txt", l2.biases)
+    np.savetxt(prefix + "l3biases.txt", l3.biases)
 
 
 def get_weights(layer_num):
     if layer_num == 1:
-        return np.loadtxt("emnist_l1weights.txt")
+        return np.loadtxt(prefix + "l1weights.txt")
     elif layer_num == 2:
-        return np.loadtxt("emnist_l2weights.txt")
+        return np.loadtxt(prefix + "l2weights.txt")
     elif layer_num == 3:
-        return np.loadtxt("emnist_l3weights.txt")
+        return np.loadtxt(prefix + "l3weights.txt")
 
 
 def get_biases(layer_num):
     if layer_num == 1:
-        return np.loadtxt("emnist_l1biases.txt")
+        return np.loadtxt(prefix + "l1biases.txt")
     elif layer_num == 2:
-        return np.loadtxt("emnist_l2biases.txt")
+        return np.loadtxt(prefix + "l2biases.txt")
     elif layer_num == 3:
-        return np.loadtxt("emnist_l3biases.txt")
+        return np.loadtxt(prefix + "l3biases.txt")
 
 
 # l1 = la.Layer(200)
@@ -267,7 +268,7 @@ for i in range(test_size):
         print("!!!")
     tot += 1
 percent_correct = correct/tot
-if percent_correct > float(np.loadtxt("emnist_percentcorrect.txt")) and tot == test_size:
+if percent_correct > float(np.loadtxt(prefix + "percentcorrect.txt")) and tot == test_size:
     update_text_files()
 
 print(f'{correct} / {tot} - {percent_correct}')
