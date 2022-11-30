@@ -15,7 +15,8 @@ train_images, train_labels = emnist.extract_training_samples('balanced')
 test_images, test_labels = emnist.extract_test_samples('balanced')
 
 set_size = 100
-set_num = 112800 // set_size
+set_num = len(train_images) // set_size
+test_size = len(test_images)
 
 
 def dsigmoid(x):
@@ -39,11 +40,7 @@ def create_grayscale_vector_array(image_set):
     return arr
 
 
-def mserror(actual_values, predicted_values):
-    return mean_squared_error(actual_values, predicted_values, squared=True)
-
-
-def MSE(index):
+def mse(index):
     # for i in l3.get_matrix()[0]:
     #     print(i.get_value(), i.get_weights(), i.get_bias())
 
@@ -59,7 +56,7 @@ def MSE(index):
             actuals.append(0)
         predicts.append(val)
 
-    return mserror(actuals, predicts)
+    return mean_squared_error(actuals, predicts, squared=True)
 
 
 def create_one_dimensional(arr):
@@ -79,19 +76,19 @@ def write_train_data_to_file():
         for threeD_data_slice in train_data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-7.8f')
-                outfile.write('# New slice\n')
+                outfile.write('\n')
 
 
 def write_test_data_to_file():
     test_arr = create_grayscale_vector_array(test_images)
 
-    test_data = np.reshape(create_one_dimensional(test_arr), (18800 // set_size, set_size, 784, 1))
+    test_data = np.reshape(create_one_dimensional(test_arr), (test_size // set_size, set_size, 784, 1))
 
     with open('emnist_test_vect_arr.txt', 'w') as outfile:
         for threeD_data_slice in test_data:
             for twoD_data_slice in threeD_data_slice:
                 np.savetxt(outfile, twoD_data_slice, fmt='%-7.8f')
-                outfile.write('# New slice\n')
+                outfile.write('\n')
 
 
 # write_train_data_to_file()  # get rid of these when run once
@@ -103,13 +100,11 @@ def get_train_vect_arr():
 
 
 def get_test_vect_arr():
-    return np.loadtxt('emnist_test_vect_arr.txt').reshape((18800 // set_size, set_size, 784, 1))
+    return np.loadtxt('emnist_test_vect_arr.txt').reshape((test_size // set_size, set_size, 784, 1))
 
 
 train_vect_arr = get_train_vect_arr()
 test_vect_arr = get_test_vect_arr()
-# train_vect_arr = create_grayscale_vector_array(train_images)
-# test_vect_arr = create_grayscale_vector_array(test_images)
 
 
 def d_a_to_cost(index):
@@ -151,18 +146,18 @@ def get_biases(layer_num):
         return np.loadtxt("emnist_l3biases.txt")
 
 
-# l1 = la.Layer(100)
-# l2 = la.Layer(100, l1)
+# l1 = la.Layer(200)
+# l2 = la.Layer(200, l1)
 # l3 = la.Layer(47, l2)
 l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(47, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
 
-prop_c = 0.5
+prop_c = 2.0
 
 
-for j in range(600):
+for j in range(300):
     train_vect = train_vect_arr[j % set_num]
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
@@ -182,7 +177,7 @@ for j in range(600):
         l1.update(train_vect[i])
         l2.update()
         l3.update()
-        total += MSE((j % set_num) * set_size + i)
+        total += mse((j % set_num) * set_size + i)
 
         da3cost = []
         da2cost = []
@@ -227,7 +222,7 @@ for j in range(600):
 
     avg = total / len(train_vect)
     # print(10 * avg)
-    if j % 10 == 0:
+    if j % 1 == 0:
         print(f'{j} {10 * avg}')
 
     l3_wshifts /= len(train_vect)
@@ -254,7 +249,7 @@ for j in range(600):
 correct = 0
 tot = 0
 
-for i in range(18800):
+for i in range(test_size):
     l1.update(test_vect_arr[i // set_size][i % set_size])
     l2.update()
     l3.update()
@@ -272,7 +267,7 @@ for i in range(18800):
         print("!!!")
     tot += 1
 percent_correct = correct/tot
-if percent_correct > float(np.loadtxt("emnist_percentcorrect.txt")) and tot == 18800:
+if percent_correct > float(np.loadtxt("emnist_percentcorrect.txt")) and tot == test_size:
     update_text_files()
 
-print(f'{correct} / {tot} - {correct / tot}')
+print(f'{correct} / {tot} - {percent_correct}')
