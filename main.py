@@ -202,7 +202,8 @@ def show_image(num):
     screen.fill((255, 255, 255))
     for r in range(0, 700):
         for c in range(0, 700):
-            pygame.draw.rect(screen, (drawn_arr[num][c][r], drawn_arr[num][c][r], drawn_arr[num][c][r]), (c, r, 1, 1))
+            if drawn_arr[num][c][r] != 255:
+                pygame.draw.rect(screen, (drawn_arr[num][c][r], drawn_arr[num][c][r], drawn_arr[num][c][r]), (c, r, 1, 1))
 
 
 running = True
