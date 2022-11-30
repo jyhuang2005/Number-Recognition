@@ -52,7 +52,19 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
 drawn_arr = []
+processed_arr = []
 guess_arr = []
+
+
+def save_image():
+    pixels = []
+    for r in range(WIDTH):
+        pixels.append([])
+        for c in range(HEIGHT):
+            pix = screen.get_at((r, c))[0]
+            pixels[r].append(pix)
+
+    return pixels
 
 
 def process_image():
@@ -181,9 +193,16 @@ def show_pixelated(num):
 
     for r in range(0, 700, 25):
         for c in range(0, 700, 25):
-            grayscale_value = max(0, 255 - drawn_arr[num][i] * 255)
+            grayscale_value = max(0, 255 - processed_arr[num][i] * 255)
             pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value), (c, r, 25, 25))
             i += 1
+
+
+def show_image(num):
+    screen.fill((255, 255, 255))
+    for r in range(0, 700):
+        for c in range(0, 700):
+            pygame.draw.rect(screen, (drawn_arr[num][c][r], drawn_arr[num][c][r], drawn_arr[num][c][r]), (c, r, 1, 1))
 
 
 running = True
@@ -191,7 +210,8 @@ stroke_size = 25
 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 previous_x, previous_y = 0, 0
 first = True
-viewing = False
+viewing_pix = False
+viewing_orig = False
 view_num = 0
 
 while running:
@@ -200,51 +220,75 @@ while running:
         current_y = pygame.mouse.get_pos()[1]
 
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
-            if event.key == K_SPACE and not viewing:
+            if event.key == K_SPACE and not (viewing_orig or viewing_pix):
                 image = process_image()
+                orig_image = save_image()
                 if image is not None:
-                    drawn_arr.append(image)
+                    drawn_arr.append(orig_image)
+                    processed_arr.append(image)
                     guess_arr.append(analyze(image))
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_v:
-                if not viewing and len(drawn_arr) > 0:
-                    show_pixelated(view_num)
-                    viewing = True
-                elif viewing:
-                    viewing = False
+                if not (viewing_orig or viewing_pix) and len(processed_arr) > 0:
+                    show_image(view_num)
+                    viewing_orig = True
+                elif viewing_orig:
+                    viewing_orig = False
                     screen.fill((255, 255, 255))
                     view_num = 0
-            elif event.key == K_RIGHT and viewing:
-                if len(drawn_arr) > view_num + 1:
-                    view_num += 1
+            elif event.key == K_p:
+                if not (viewing_orig or viewing_pix) and len(processed_arr) > 0:
                     show_pixelated(view_num)
-                elif len(drawn_arr) > 1:
+                    viewing_pix = True
+                elif viewing_pix:
+                    viewing_pix = False
+                    screen.fill((255, 255, 255))
                     view_num = 0
-                    show_pixelated(view_num)
-            elif event.key == K_LEFT and viewing:
+            elif event.key == K_RIGHT and (viewing_orig or viewing_pix):
+                if len(processed_arr) > view_num + 1:
+                    view_num += 1
+                    if viewing_orig:
+                        show_image(view_num)
+                    else:
+                        show_pixelated(view_num)
+                elif len(processed_arr) > 1:
+                    view_num = 0
+                    if viewing_orig:
+                        show_image(view_num)
+                    else:
+                        show_pixelated(view_num)
+            elif event.key == K_LEFT and (viewing_orig or viewing_pix):
                 if view_num > 0:
                     view_num -= 1
-                    show_pixelated(view_num)
-                elif len(drawn_arr) > 1:
-                    view_num = len(drawn_arr) - 1
-                    show_pixelated(view_num)
-            elif event.key == K_c and not viewing:
+                    if viewing_orig:
+                        show_image(view_num)
+                    else:
+                        show_pixelated(view_num)
+                elif len(processed_arr) > 1:
+                    view_num = len(processed_arr) - 1
+                    if viewing_orig:
+                        show_image(view_num)
+                    else:
+                        show_pixelated(view_num)
+            elif event.key == K_c and not (viewing_orig or viewing_pix):
                 screen.fill((255, 255, 255))
-            elif event.key == K_r and viewing:
+            elif event.key == K_r and (viewing_orig or viewing_pix):
                 screen.fill((255, 255, 255))
                 drawn_arr.clear()
+                processed_arr.clear()
                 guess_arr.clear()
-                viewing = False
+                viewing_orig = False
+                viewing_pix = False
                 view_num = 0
             elif event.key == K_ESCAPE:
                 running = False
-            if viewing:
-                pygame.display.set_caption(f'Viewing {view_num + 1}/{len(drawn_arr)} - Guess: {guess_arr[view_num]}')
+            if viewing_orig or viewing_pix:
+                pygame.display.set_caption(f'Viewing {view_num + 1}/{len(processed_arr)} - Guess: {guess_arr[view_num]}')
             else:
                 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
-        elif pygame.mouse.get_pressed()[0] and not viewing:
+        elif pygame.mouse.get_pressed()[0] and not (viewing_orig or viewing_pix):
             xdis = current_x - previous_x
             ydis = current_y - previous_y
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
@@ -257,7 +301,7 @@ while running:
                 first = False
         elif event.type == QUIT:
             running = False
-        elif event.type == pygame.MOUSEWHEEL and not viewing:
+        elif event.type == pygame.MOUSEWHEEL and not (viewing_orig or viewing_pix):
             stroke_size += event.y
             if stroke_size > 500:
                 stroke_size = 500
