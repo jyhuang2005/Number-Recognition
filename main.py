@@ -25,7 +25,7 @@ def create_one_dimensional(arr):
     return np.array(arr).ravel()
 
 
-prefix = "emnist_"
+prefix = "digits_"
 
 
 def get_weights(layer_num):

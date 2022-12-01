@@ -11,13 +11,13 @@ from sklearn.metrics import mean_squared_error
 # test_images = idx2numpy.convert_from_file("t10k-images-idx3-ubyte")
 # test_labels = idx2numpy.convert_from_file("t10k-labels-idx1-ubyte")
 
-train_images, train_labels = emnist.extract_training_samples('balanced')
-test_images, test_labels = emnist.extract_test_samples('balanced')
+train_images, train_labels = emnist.extract_training_samples('digits')
+test_images, test_labels = emnist.extract_test_samples('digits')
 
 set_size = 100
 set_num = len(train_images) // set_size
 test_size = len(test_images)
-prefix = "emnist_"
+prefix = "digits_"
 
 
 def dsigmoid(x):
@@ -147,18 +147,18 @@ def get_biases(layer_num):
         return np.loadtxt(prefix + "l3biases.txt")
 
 
-# l1 = la.Layer(200)
-# l2 = la.Layer(200, l1)
-# l3 = la.Layer(47, l2)
+# l1 = la.Layer(100)
+# l2 = la.Layer(100, l1)
+# l3 = la.Layer(10, l2)
 l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
-l3 = la.Layer(47, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
+l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
 
-prop_c = 2.0
+prop_c = 0.5
 
 
-for j in range(300):
+for j in range(600):
     train_vect = train_vect_arr[j % set_num]
     total = 0
     l3_wshifts = np.empty([l3.num_neurons, l3.prev_len])
