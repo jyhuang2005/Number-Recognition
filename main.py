@@ -56,17 +56,6 @@ processed_arr = []
 guess_arr = []
 
 
-def save_image():
-    pixels = []
-    for r in range(WIDTH):
-        pixels.append([])
-        for c in range(HEIGHT):
-            pix = screen.get_at((r, c))[0]
-            pixels[r].append(pix)
-
-    return pixels
-
-
 def process_image():
     pixels = []
 
@@ -81,11 +70,11 @@ def process_image():
     for r in range(WIDTH):
         pixels.append([])
         for c in range(HEIGHT):
-            pix = screen.get_at((r, c))
+            pix = screen.get_at((r, c))[0]
             pixels[r].append(pix)
-            if pix[0] != 255:
-                # print(pix[0])
-                pix_color = (255 - pix[0]) / 255
+            if pix != 255:
+                # print(pix)
+                pix_color = (255 - pix) / 255
                 r_sum += r * pix_color
                 c_sum += c * pix_color
                 pix_count += 1
@@ -136,7 +125,7 @@ def process_image():
                     # if r == 4 or r == 23:
                     #     print(r, c, true_a, true_b)
                     if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
-                        av_color += pixels[true_a][true_b][0]
+                        av_color += pixels[true_a][true_b]
                     else:
                         av_color += 255
 
@@ -170,7 +159,7 @@ def process_image():
     for pxl in create_one_dimensional(pixelated):
         pxls.append([pxl])
 
-    return np.array(pxls)
+    return np.array(pxls), pixels
 
 
 def analyze(img):
@@ -204,7 +193,7 @@ def show_image(num):
     for r in range(0, 700):
         for c in range(0, 700):
             if drawn_arr[num][c][r] != 255:
-                pygame.draw.rect(screen, (drawn_arr[num][c][r], drawn_arr[num][c][r], drawn_arr[num][c][r]), (c, r, 1, 1))
+                pygame.draw.rect(screen, (0, 0, 0), (c, r, 1, 1))
 
 
 running = True
@@ -223,8 +212,7 @@ while running:
 
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
             if event.key == K_SPACE and not (viewing_orig or viewing_pix):
-                image = process_image()
-                orig_image = save_image()
+                image, orig_image = process_image()
                 if image is not None:
                     drawn_arr.append(orig_image)
                     processed_arr.append(image)
