@@ -2,7 +2,9 @@ import math
 
 import numpy as np
 import layer as la
+import pixel
 import contextlib
+
 with contextlib.redirect_stdout(None):
     import pygame
 
@@ -46,7 +48,6 @@ l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-
 WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
@@ -54,6 +55,14 @@ screen.fill((255, 255, 255))
 drawn_arr = []
 processed_arr = []
 guess_arr = []
+
+# 2d Array of Pixel objects, boundary variables
+twoD_pixelated = [[pixel.Pixel(0)] * 28 for i in range(28)]
+row = 0
+left = 0
+right = 0
+top = 28
+bottom = 0
 
 
 def process_image():
@@ -99,11 +108,11 @@ def process_image():
     need_fix = 0
     if pix_count == 0:
         return None
-    elif color_sum/pow(max(max_x - min_x, max_y - min_y), 2) < 0.1:
+    elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.1:
         need_fix = 2
 
-    center_x = r_sum // pix_count - WIDTH/2
-    center_y = c_sum // pix_count - HEIGHT/2
+    center_x = r_sum // pix_count - WIDTH / 2
+    center_y = c_sum // pix_count - HEIGHT / 2
 
     # print(max(max_x - min_x, max_y - min_y))
     scale = max(max_x - min_x, max_y - min_y) / ((20 - need_fix) * WIDTH / 28)
@@ -131,6 +140,7 @@ def process_image():
 
             adjusted_shade = (255 - (av_color / (pixel_size ** 2))) / 255
             pixelated[c][r] = adjusted_shade
+            twoD_pixelated[c][r] = pixel.Pixel(adjusted_shade)
             total_shade += adjusted_shade
 
     # needs fix: after shade adjustment, number too big
@@ -155,11 +165,90 @@ def process_image():
 
     # print(min_x, max_x, min_y, max_y)
 
+
+    # attemping to put single digits into an array. Don't need
+
+    digits = []
+    # digit = []
+    checking = True
+    vert = 0
+    while vert <= 28:
+        for r in range(vert, 28):
+            if not checking:
+                break
+            for c in range(28):
+                if pixelated[c][r] > 0.5:
+                    global left
+                    global row
+                    global right
+                    global top
+                    global bottom
+                    left = r
+                    row = c
+                    checking = False
+                    check_neighbor_similarity(row, left)
+                    digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
+                    for i in range(len(digit)):
+                        for j in range(len(digit[0])):
+                            digit[i][j] = pixelated[top + j][left + i]
+                    digits.append(digit)
+                    vert = right
+                    print(digit)
+                    print(pixelated[top][left])
+                    print(left, right, top, bottom)
+                    row = 0
+                    left = 0
+                    right = 0
+                    top = 28
+                    bottom = 0
+                    break
+        vert += 1
+
     pxls = []
     for pxl in create_one_dimensional(pixelated):
         pxls.append([pxl])
 
     return np.array(pxls), pixels
+
+
+# might not be necessary
+def is_in_bounds(r, c):
+    return -1 < r < len(twoD_pixelated) and len(twoD_pixelated[0]) > c > -1
+
+
+def is_similar(r, c, r2, c2):
+    return abs(twoD_pixelated[r][c].get_color() - twoD_pixelated[r2][c2].get_color() < 0.1)
+
+
+def check_neighbor_similarity(r, c):
+    global bottom
+    global top
+    global left
+    global right
+
+    if not twoD_pixelated[r][c].get_checked():
+        twoD_pixelated[r][c].set_checked(True)
+
+    # recursion, checking if neighboring pixels are "similar"
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            if is_in_bounds(r + i, c + j) and is_similar(r, c, r + i, c + j) \
+                    and not twoD_pixelated[r + i][c + j].get_checked():
+                check_neighbor_similarity(r + i, c + j)
+                if c + j > right:
+                    right = c + j
+                if r + i < top:
+                    top = r + i
+                if r + i > bottom:
+                    bottom = r + i
+            print(r + i, c + j)
+
+
+def draw_grid():
+    for i in range(28):
+        pygame.draw.line(screen, (0, 255, 255), (i * 25, 0), (i * 25, 700))
+    for j in range(28):
+        pygame.draw.line(screen, (0, 255, 255), (0, j * 25), (700, j * 25))
 
 
 def analyze(img):
@@ -169,6 +258,7 @@ def analyze(img):
 
     maxim = 0
     maxim_index = 0
+    # print(l3.matrix)
     for j in range(len(l3.matrix)):
         if l3.matrix[j, 0] > maxim:
             maxim = l3.matrix[j, 0]
@@ -184,7 +274,8 @@ def show_pixelated(num):
         for c in range(0, 700, 25):
             grayscale_value = max(0, 255 - processed_arr[num][i] * 255)
             if grayscale_value != 255:
-                pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value), (c, r, 25, 25))
+                pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value),
+                                 (c + 1, r + 1, 25 - 1, 25 - 1))
             i += 1
 
 
@@ -209,7 +300,8 @@ while running:
     for event in pygame.event.get():
         current_x = pygame.mouse.get_pos()[0]
         current_y = pygame.mouse.get_pos()[1]
-
+        if viewing_pix:
+            draw_grid()
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
             if event.key == K_SPACE and not (viewing_orig or viewing_pix):
                 image, orig_image = process_image()
@@ -276,7 +368,8 @@ while running:
             elif event.key == K_ESCAPE:
                 running = False
             if viewing_orig or viewing_pix:
-                pygame.display.set_caption(f'Viewing {view_num + 1}/{len(processed_arr)} - Guess: {guess_arr[view_num]}')
+                pygame.display.set_caption(
+                    f'Viewing {view_num + 1}/{len(processed_arr)} - Guess: {guess_arr[view_num]}')
             else:
                 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
@@ -287,7 +380,8 @@ while running:
             pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
             if not first:
                 for c in range(dis):
-                    pygame.draw.circle(screen, (0, 0, 0), (current_x - ((c * xdis) / dis), current_y - ((c * ydis) / dis)), stroke_size)
+                    pygame.draw.circle(screen, (0, 0, 0),
+                                       (current_x - ((c * xdis) / dis), current_y - ((c * ydis) / dis)), stroke_size)
             else:
                 pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
                 first = False
