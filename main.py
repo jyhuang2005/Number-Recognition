@@ -66,6 +66,7 @@ left = 0
 right = 0
 top = 28
 bottom = 0
+recursion = False
 
 
 def process_image():
@@ -114,7 +115,7 @@ def process_image():
 
     need_fix = 0
     if pix_count == 0:
-        return None
+        return None, None
     elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.1:
         need_fix = 2
 
@@ -190,11 +191,13 @@ def process_image():
                 global right
                 global top
                 global bottom
+                global recursion
                 left = r
                 row = c
                 checking = False
                 # check_neighbor_similarity(row, left)
                 print(left, row, ">:(")
+                recursion = False
                 find_ccw_neighbor(left, row, 1, 0)
                 print(outline_coords)
                 print(len(outline_coords))
@@ -263,36 +266,38 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
     global top
     global left
     global right
+    global recursion
     print(r, c, "O:")
     print(twoD_pixelated[c][r].get_color())
-
-    if not twoD_pixelated[r][c].get_checked():
-        twoD_pixelated[r][c].set_checked(True)
-
-    if is_in_bounds(r + c_dir, c - r_dir) and is_similar(r, c, r + c_dir, c - r_dir) and not twoD_pixelated[r + c_dir][c - r_dir].get_checked():
-        print(r + c_dir, c - r_dir, "first")
-        find_ccw_neighbor(r + c_dir, c - r_dir, c_dir, -r_dir)
-        outline_coords.append([r + c_dir, c - r_dir])
-        # if c - 1 < left:
-        #     left = c - 1
-    elif is_in_bounds(r + r_dir, c + c_dir) and is_similar(r, c, r + r_dir, c + c_dir) and not twoD_pixelated[r + r_dir][c + c_dir].get_checked():
-        print(r + r_dir, c + c_dir, "second")
-        find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
-        outline_coords.append([r + r_dir, c + c_dir])
-        if r + 1 > bottom:
-            bottom = r + 1
-    elif is_in_bounds(r - c_dir, c + r_dir) and is_similar(r, c, r - c_dir, c + r_dir) and not twoD_pixelated[r - c_dir][c + r_dir].get_checked():
-        print(r - c_dir, c + r_dir, "third")
-        find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
-        outline_coords.append([r - c_dir, c + r_dir])
-        if c + 1 > right:
-            right = c + 1
-    elif is_in_bounds(r - r_dir, c - c_dir) and is_similar(r, c, r - r_dir, c - c_dir) and not twoD_pixelated[r - r_dir][c - c_dir].get_checked():
-        print(r - r_dir, c - c_dir, "fourth")
-        find_ccw_neighbor(r - r_dir, c - c_dir, -r_dir, -c_dir)
-        outline_coords.append([r - r_dir, c - c_dir])
-        if r - 1 < top:
-            top = r - 1
+    if r == left and c == row:
+        recursion = not recursion
+    if recursion:
+        if not twoD_pixelated[r][c].get_checked():
+            twoD_pixelated[r][c].set_checked(True)
+        if is_in_bounds(r + c_dir, c - r_dir) and is_similar(r, c, r + c_dir, c - r_dir):
+            print(r + c_dir, c - r_dir, "first")
+            find_ccw_neighbor(r + c_dir, c - r_dir, c_dir, -r_dir)
+            outline_coords.append([r + c_dir, c - r_dir])
+            if c - 1 < left:
+                left = c - 1
+        elif is_in_bounds(r + r_dir, c + c_dir) and is_similar(r, c, r + r_dir, c + c_dir):
+            print(r + r_dir, c + c_dir, "second")
+            find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
+            outline_coords.append([r + r_dir, c + c_dir])
+            if r + 1 > bottom:
+                bottom = r + 1
+        elif is_in_bounds(r - c_dir, c + r_dir) and is_similar(r, c, r - c_dir, c + r_dir):
+            print(r - c_dir, c + r_dir, "third")
+            find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
+            outline_coords.append([r - c_dir, c + r_dir])
+            if c + 1 > right:
+                right = c + 1
+        elif is_in_bounds(r - r_dir, c - c_dir) and is_similar(r, c, r - r_dir, c - c_dir):
+            print(r - r_dir, c - c_dir, "fourth")
+            find_ccw_neighbor(r - r_dir, c - c_dir, -r_dir, -c_dir)
+            outline_coords.append([r - r_dir, c - c_dir])
+            if r - 1 < top:
+                top = r - 1
 
 
 def draw_outline():
