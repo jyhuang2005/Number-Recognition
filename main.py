@@ -261,6 +261,7 @@ def check_neighbor_similarity(r, c):
 
 outline_coords = []
 
+
 def find_ccw_neighbor(r, c, r_dir, c_dir):
     global bottom
     global top
@@ -301,7 +302,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
 
 
 def draw_outline():
-    # screen.fill((255, 255, 255))
+    screen.fill((255, 255, 255))
 
     for coord in outline_coords:
         pygame.draw.rect(screen, (0, 0, 0), (coord[1], coord[0], 1, 1))
@@ -361,6 +362,7 @@ previous_x, previous_y = 0, 0
 first = True
 viewing_pix = False
 viewing_orig = False
+viewing_outline = False
 view_num = 0
 
 
@@ -382,72 +384,89 @@ while running:
             elif event.key == K_v:
                 if not viewing_orig and len(processed_arr) > 0:
                     show_image(view_num)
-                    # draw_outline()
                     draw_start(row, left)
                     viewing_orig = True
                     viewing_pix = False
+                    viewing_outline = False
                 elif viewing_orig:
                     viewing_orig = False
                     screen.fill((255, 255, 255))
                     view_num = 0
             elif event.key == K_o:
-                if not (viewing_orig or viewing_pix) and len(processed_arr) > 0:
+                if not viewing_outline and len(processed_arr) > 0:
                     draw_outline()
                     draw_start(row, left)
+                    viewing_outline = True
+                    viewing_orig = False
+                    viewing_pix = False
+                elif viewing_outline:
+                    viewing_outline = False
+                    screen.fill((255, 255, 255))
+                    view_num = 0
             elif event.key == K_p:
                 if not viewing_pix and len(processed_arr) > 0:
                     show_pixelated(view_num)
                     viewing_pix = True
                     viewing_orig = False
+                    viewing_outline = False
                 elif viewing_pix:
                     viewing_pix = False
                     screen.fill((255, 255, 255))
                     view_num = 0
-            elif event.key == K_RIGHT and (viewing_orig or viewing_pix):
+            elif event.key == K_RIGHT and (viewing_orig or viewing_pix or viewing_outline):
                 if len(processed_arr) > view_num + 1:
                     view_num += 1
                     if viewing_orig:
                         show_image(view_num)
-                    else:
+                    elif viewing_pix:
                         show_pixelated(view_num)
+                    elif viewing_outline:
+                        draw_outline()
                 elif len(processed_arr) > 1:
                     view_num = 0
                     if viewing_orig:
                         show_image(view_num)
-                    else:
+                    elif viewing_pix:
                         show_pixelated(view_num)
+                    elif viewing_outline:
+                        draw_outline()
             elif event.key == K_LEFT and (viewing_orig or viewing_pix):
                 if view_num > 0:
                     view_num -= 1
                     if viewing_orig:
                         show_image(view_num)
-                    else:
+                    elif viewing_pix:
                         show_pixelated(view_num)
+                    elif viewing_outline:
+                        draw_outline()
                 elif len(processed_arr) > 1:
                     view_num = len(processed_arr) - 1
                     if viewing_orig:
                         show_image(view_num)
-                    else:
+                    elif viewing_pix:
                         show_pixelated(view_num)
-            elif event.key == K_c and not (viewing_orig or viewing_pix):
+                    elif viewing_outline:
+                        draw_outline()
+            elif event.key == K_c and not (viewing_orig or viewing_pix or viewing_outline):
                 screen.fill((255, 255, 255))
-            elif event.key == K_r and (viewing_orig or viewing_pix):
+            elif event.key == K_r and (viewing_orig or viewing_pix or viewing_outline):
                 screen.fill((255, 255, 255))
                 drawn_arr.clear()
                 processed_arr.clear()
                 guess_arr.clear()
                 viewing_orig = False
                 viewing_pix = False
+                viewing_outline = False
                 view_num = 0
             elif event.key == K_ESCAPE:
                 running = False
-            if viewing_orig or viewing_pix:
+            if viewing_orig or viewing_pix or viewing_outline:
                 pygame.display.set_caption(
                     f'Viewing {view_num + 1}/{len(processed_arr)} - Guess: {guess_arr[view_num]}')
             else:
                 pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
 
-        elif pygame.mouse.get_pressed()[0] and not (viewing_orig or viewing_pix):
+        elif pygame.mouse.get_pressed()[0] and not (viewing_orig or viewing_pix or viewing_outline):
             xdis = current_x - previous_x
             ydis = current_y - previous_y
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
@@ -461,7 +480,7 @@ while running:
                 first = False
         elif event.type == QUIT:
             running = False
-        elif event.type == pygame.MOUSEWHEEL and not (viewing_orig or viewing_pix):
+        elif event.type == pygame.MOUSEWHEEL and not (viewing_orig or viewing_pix or viewing_outline):
             stroke_size += event.y
             if stroke_size > 500:
                 stroke_size = 500
