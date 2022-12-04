@@ -62,9 +62,9 @@ guess_arr = []
 # twoD_pixelated = [[pixel.Pixel(0)] * 700 for i in range(700)]
 twoD_pixelated = []
 row = 0
-left = 0
+left = 700
 right = 0
-top = 28
+top = 700
 bottom = 0
 recursion = False
 
@@ -192,13 +192,13 @@ def process_image():
                 global top
                 global bottom
                 global recursion
-                left = r
+                top = r
                 row = c
                 checking = False
                 # check_neighbor_similarity(row, left)
-                print(left, row, ">:(")
+                print(top, row, ">:(")
                 recursion = False
-                find_ccw_neighbor(left, row, 1, 0)
+                find_ccw_neighbor(top, row, 1, 0)
                 print(outline_coords)
                 print(len(outline_coords))
                 # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
@@ -270,35 +270,56 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
     global recursion
     print(r, c, "O:")
     print(twoD_pixelated[c][r].get_color())
-    if r == left and c == row:
+    if r == top and c == row:
         recursion = not recursion
     if recursion:
         if not twoD_pixelated[r][c].get_checked():
             twoD_pixelated[r][c].set_checked(True)
         if is_in_bounds(r + c_dir, c - r_dir) and is_similar(r, c, r + c_dir, c - r_dir):
             print(r + c_dir, c - r_dir, "first")
+            if c - r_dir < left:
+                left = c - r_dir
+            if c - r_dir > right:
+                right = c - r_dir
+            if r + c_dir < top:
+                top = r + c_dir
+            if r + c_dir > bottom:
+                bottom = r + c_dir
+
             find_ccw_neighbor(r + c_dir, c - r_dir, c_dir, -r_dir)
             outline_coords.append([r + c_dir, c - r_dir])
-            if c - 1 < left:
-                left = c - 1
         elif is_in_bounds(r + r_dir, c + c_dir) and is_similar(r, c, r + r_dir, c + c_dir):
             print(r + r_dir, c + c_dir, "second")
+            if c + c_dir < left:
+                left = c + c_dir
+            if c + c_dir > right:
+                right = c + c_dir
+            if r + r_dir < top:
+                top = r + r_dir
+            if r + r_dir > bottom:
+                bottom = r + r_dir
+
             find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
             outline_coords.append([r + r_dir, c + c_dir])
-            if r + 1 > bottom:
-                bottom = r + 1
         elif is_in_bounds(r - c_dir, c + r_dir) and is_similar(r, c, r - c_dir, c + r_dir):
             print(r - c_dir, c + r_dir, "third")
+            if c + r_dir < left:
+                left = c + r_dir
+            if c + r_dir > right:
+                right = c + r_dir
+            if r - c_dir < top:
+                top = r - c_dir
+            if r - c_dir > bottom:
+                bottom = r - c_dir
+
             find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
             outline_coords.append([r - c_dir, c + r_dir])
-            if c + 1 > right:
-                right = c + 1
-        elif is_in_bounds(r - r_dir, c - c_dir) and is_similar(r, c, r - r_dir, c - c_dir):
-            print(r - r_dir, c - c_dir, "fourth")
-            find_ccw_neighbor(r - r_dir, c - c_dir, -r_dir, -c_dir)
-            outline_coords.append([r - r_dir, c - c_dir])
-            if r - 1 < top:
-                top = r - 1
+        # elif is_in_bounds(r - r_dir, c - c_dir) and is_similar(r, c, r - r_dir, c - c_dir):
+        #     print(r - r_dir, c - c_dir, "fourth")
+        #     find_ccw_neighbor(r - r_dir, c - c_dir, -r_dir, -c_dir)
+        #     outline_coords.append([r - r_dir, c - c_dir])
+        #     if r - 1 < top:
+        #         top = r - 1
 
 
 def draw_outline():
@@ -384,7 +405,7 @@ while running:
             elif event.key == K_v:
                 if not viewing_orig and len(processed_arr) > 0:
                     show_image(view_num)
-                    draw_start(row, left)
+                    draw_start(row, top)
                     viewing_orig = True
                     viewing_pix = False
                     viewing_outline = False
@@ -395,7 +416,7 @@ while running:
             elif event.key == K_o:
                 if not viewing_outline and len(processed_arr) > 0:
                     draw_outline()
-                    draw_start(row, left)
+                    draw_start(row, top)
                     viewing_outline = True
                     viewing_orig = False
                     viewing_pix = False
@@ -472,9 +493,9 @@ while running:
             dis = int(math.sqrt(xdis ** 2 + ydis ** 2))
             pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
             if not first:
-                for c in range(dis):
+                for h in range(dis):
                     pygame.draw.circle(screen, (0, 0, 0),
-                                       (current_x - ((c * xdis) / dis), current_y - ((c * ydis) / dis)), stroke_size)
+                                       (current_x - ((h * xdis) / dis), current_y - ((h * ydis) / dis)), stroke_size)
             else:
                 pygame.draw.circle(screen, (0, 0, 0), (current_x, current_y), stroke_size)
                 first = False
