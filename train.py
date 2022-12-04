@@ -34,14 +34,7 @@ def create_grayscale_vector_array(image_set):
     return arr
 
 
-def mserror(actual_values, predicted_values):
-    return mean_squared_error(actual_values, predicted_values, squared=True)
-
-
-def MSE(index):
-    # for i in l3.get_matrix()[0]:
-    #     print(i.get_value(), i.get_weights(), i.get_bias())
-
+def mse(index):
     actuals = []
     predicts = []
 
@@ -54,16 +47,15 @@ def MSE(index):
             actuals.append(0)
         predicts.append(val)
 
-    return mserror(actuals, predicts)
+    return mean_squared_error(actuals, predicts, squared=True)
 
 
 def create_one_dimensional(arr):
     return np.array(arr).ravel()
 
 
-def create_reshaped_vector_array(arr, image_set):
+def create_reshaped_vector_array(arr):
     return np.reshape(arr, (set_num, set_size, 784, 1))
-    # return np.reshape(arr, (28, 28, set_size, image_set // set_size))
 
 
 def write_train_data_to_file():
@@ -173,7 +165,7 @@ for j in range(600):
         l1.update(train_vect[i])
         l2.update()
         l3.update()
-        total += MSE((j % set_num) * set_size + i)
+        total += mse((j % set_num) * set_size + i)
 
         da3cost = []
         da2cost = []
@@ -217,7 +209,7 @@ for j in range(600):
             l1_bshifts[m, 0] -= dz1costm
 
     avg = total / len(train_vect)
-    # print(10 * avg)
+
     if j % 10 == 0:
         print(f'{j} {10 * avg}')
 
@@ -245,6 +237,7 @@ for j in range(600):
 correct = 0
 tot = 0
 
+# runs training dataset through neural network to assess success rate
 for i in range(10000):
     if i == 0:
         print(test_vect_arr[0][0])
@@ -267,7 +260,5 @@ for i in range(10000):
 percent_correct = correct/tot
 if percent_correct > float(np.loadtxt("percentcorrect.txt")) and tot == 10000:
     update_text_files()
-# if tot == 10000:
-#     update_text_files()
 
 print(f'{correct} / {tot}')

@@ -60,7 +60,7 @@ guess_arr = []
 
 # 2d Array of Pixel objects, boundary variables
 # twoD_pixelated = [[pixel.Pixel(0)] * 700 for i in range(700)]
-twoD_pixelated = []
+twoD_pixels = []
 row = 0
 left = 700
 right = 0
@@ -71,7 +71,6 @@ recursion = False
 
 def process_image():
     sys.setrecursionlimit(10000)
-    global twoD_pixelated
     pixels = []
 
     r_sum = 0
@@ -84,13 +83,13 @@ def process_image():
     max_y = None
     for r in range(WIDTH):
         pixels.append([])
-        twoD_pixelated.append([])
+        twoD_pixels.append([])
         for c in range(HEIGHT):
             pix = screen.get_at((r, c))[0]
             pixels[r].append(pix)
-            twoD_pixelated[r].append(pixel.Pixel(pix))
+            twoD_pixels[r].append(pixel.Pixel(pix))
+            # finding mean location of pixels
             if pix != 255:
-                # print(pix)
                 pix_color = (255 - pix) / 255
                 r_sum += r * pix_color
                 c_sum += c * pix_color
@@ -171,10 +170,7 @@ def process_image():
                     if r < 27 and pixelated[r + 1][c] == 0:
                         pixelated[r + 1][c] = 0.9
 
-    # print(min_x, max_x, min_y, max_y)
-
-
-    # attemping to put single digits into an array. Don't need
+    # detecting multiple numbers in one image
 
     digits = []
     # digit = []
@@ -207,11 +203,9 @@ def process_image():
                 #         digit[i][j] = pixelated[top + j][left + i]
                 # digits.append(digit)
                 vert = right
-                # print(digit)
-                # print(pixelated[top][left])
                 print(left, right, top, bottom)
                 # row = 0
-                # left = 0
+                # left = 700
                 # right = 0
                 # top = 700
                 # bottom = 0
@@ -225,43 +219,14 @@ def process_image():
     return np.array(pxls), pixels
 
 
-# might not be necessary
 def is_in_bounds(r, c):
-    return -1 < r < len(twoD_pixelated) and len(twoD_pixelated[0]) > c > -1
-
-
-def is_similar(r, c, r2, c2):
-    # return abs(twoD_pixelated[r][c].get_color() - twoD_pixelated[r2][c2].get_color() < 0.3)
-    return twoD_pixelated[c2][r2].get_color() <= 50
-
-
-def check_neighbor_similarity(r, c):
-    global bottom
-    global top
-    global left
-    global right
-
-    if not twoD_pixelated[r][c].get_checked():
-        twoD_pixelated[r][c].set_checked(True)
-
-    # recursion, checking if neighboring pixels are "similar"
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            if is_in_bounds(r + i, c + j) and is_similar(r, c, r + i, c + j) \
-                    and not twoD_pixelated[r + i][c + j].get_checked():
-                check_neighbor_similarity(r + i, c + j)
-                if c + j > right:
-                    right = c + j
-                if r + i < top:
-                    top = r + i
-                if r + i > bottom:
-                    bottom = r + i
-            print(r + i, c + j)
+    return -1 < r < len(twoD_pixels) and len(twoD_pixels[0]) > c > -1
 
 
 outline_coords = []
 
 
+# recursively finds the outline of a drawing
 def find_ccw_neighbor(r, c, r_dir, c_dir):
     global bottom
     global top
@@ -269,13 +234,13 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
     global right
     global recursion
     print(r, c, "O:")
-    print(twoD_pixelated[c][r].get_color())
+    print(twoD_pixels[c][r].get_color())
     if r == top and c == row:
         recursion = not recursion
     if recursion:
-        if not twoD_pixelated[r][c].get_checked():
-            twoD_pixelated[r][c].set_checked(True)
-        if is_in_bounds(r + c_dir, c - r_dir) and is_similar(r, c, r + c_dir, c - r_dir):
+        if not twoD_pixels[r][c].get_checked():
+            twoD_pixels[r][c].set_checked(True)
+        if is_in_bounds(r + c_dir, c - r_dir) and twoD_pixels[c - r_dir][r + c_dir].get_color() == 0:
             print(r + c_dir, c - r_dir, "first")
             if c - r_dir < left:
                 left = c - r_dir
@@ -288,7 +253,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
 
             find_ccw_neighbor(r + c_dir, c - r_dir, c_dir, -r_dir)
             outline_coords.append([r + c_dir, c - r_dir])
-        elif is_in_bounds(r + r_dir, c + c_dir) and is_similar(r, c, r + r_dir, c + c_dir):
+        elif is_in_bounds(r + r_dir, c + c_dir) and twoD_pixels[c + c_dir][r + r_dir].get_color() == 0:
             print(r + r_dir, c + c_dir, "second")
             if c + c_dir < left:
                 left = c + c_dir
@@ -301,7 +266,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
 
             find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
             outline_coords.append([r + r_dir, c + c_dir])
-        elif is_in_bounds(r - c_dir, c + r_dir) and is_similar(r, c, r - c_dir, c + r_dir):
+        elif is_in_bounds(r - c_dir, c + r_dir) and twoD_pixels[c + r_dir][r - c_dir].get_color() == 0:
             print(r - c_dir, c + r_dir, "third")
             if c + r_dir < left:
                 left = c + r_dir
@@ -314,19 +279,6 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
 
             find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
             outline_coords.append([r - c_dir, c + r_dir])
-        # elif is_in_bounds(r - r_dir, c - c_dir) and is_similar(r, c, r - r_dir, c - c_dir):
-        #     print(r - r_dir, c - c_dir, "fourth")
-        #     find_ccw_neighbor(r - r_dir, c - c_dir, -r_dir, -c_dir)
-        #     outline_coords.append([r - r_dir, c - c_dir])
-        #     if r - 1 < top:
-        #         top = r - 1
-
-
-def draw_outline():
-    screen.fill((255, 255, 255))
-
-    for coord in outline_coords:
-        pygame.draw.rect(screen, (0, 0, 0), (coord[1], coord[0], 1, 1))
 
 
 def draw_start(r, c):
@@ -370,10 +322,18 @@ def show_pixelated(num):
 
 def show_image(num):
     screen.fill((255, 255, 255))
+
     for r in range(0, 700):
         for c in range(0, 700):
             if drawn_arr[num][c][r] != 255:
                 pygame.draw.rect(screen, (0, 0, 0), (c, r, 1, 1))
+
+
+def show_outline():
+    screen.fill((255, 255, 255))
+
+    for coord in outline_coords:
+        pygame.draw.rect(screen, (0, 0, 0), (coord[1], coord[0], 1, 1))
 
 
 running = True
@@ -415,7 +375,7 @@ while running:
                     view_num = 0
             elif event.key == K_o:
                 if not viewing_outline and len(processed_arr) > 0:
-                    draw_outline()
+                    show_outline()
                     draw_start(row, top)
                     viewing_outline = True
                     viewing_orig = False
@@ -442,7 +402,7 @@ while running:
                     elif viewing_pix:
                         show_pixelated(view_num)
                     elif viewing_outline:
-                        draw_outline()
+                        show_outline()
                 elif len(processed_arr) > 1:
                     view_num = 0
                     if viewing_orig:
@@ -450,7 +410,7 @@ while running:
                     elif viewing_pix:
                         show_pixelated(view_num)
                     elif viewing_outline:
-                        draw_outline()
+                        show_outline()
             elif event.key == K_LEFT and (viewing_orig or viewing_pix):
                 if view_num > 0:
                     view_num -= 1
@@ -459,7 +419,7 @@ while running:
                     elif viewing_pix:
                         show_pixelated(view_num)
                     elif viewing_outline:
-                        draw_outline()
+                        show_outline()
                 elif len(processed_arr) > 1:
                     view_num = len(processed_arr) - 1
                     if viewing_orig:
@@ -467,7 +427,7 @@ while running:
                     elif viewing_pix:
                         show_pixelated(view_num)
                     elif viewing_outline:
-                        draw_outline()
+                        show_outline()
             elif event.key == K_c and not (viewing_orig or viewing_pix or viewing_outline):
                 screen.fill((255, 255, 255))
             elif event.key == K_r and (viewing_orig or viewing_pix or viewing_outline):

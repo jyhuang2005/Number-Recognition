@@ -11,7 +11,6 @@ class Layer:
     def __init__(self, num_neurons, prev_layer=None, weights=None, biases=None):
         self.num_neurons = num_neurons
 
-        # self.neuron_array = []
         self.prev_len = 784
         if prev_layer is not None:
             self.prev_layer = prev_layer
@@ -26,6 +25,7 @@ class Layer:
         self.prev_matrix = None
         self.prod = None
 
+        # random weights and biases
         if weights is None:
             self.weights = np.empty([self.num_neurons, self.prev_len])
             for i in range(num_neurons):
@@ -78,6 +78,7 @@ class Layer:
     #             for j in range(len(val_array[0])):
     #                 self.neuron_array[i][j].update(val_array[i][j]/255)
 
+    # updates layer with new weights and biases
     def update(self, prev_matrix=None):
         if prev_matrix is None:
             self.prev_matrix = self.prev_layer.matrix
