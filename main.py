@@ -177,39 +177,39 @@ def process_image():
     checking = True
     vert = 0
     # while vert <= 700:
-    for r in range(vert, 700):
-        if not checking:
-            break
-        for c in range(700):
-            if pixels[r][c] < 0.5:
-                global left
-                global row
-                global right
-                global top
-                global bottom
-                global recursion
-                left = r
-                row = c
-                checking = False
-                # check_neighbor_similarity(row, left)
-                print(row, left, ">:(")
-                recursion = False
-                find_ccw_neighbor(row, left, 1, 0)
-                print(outline_coords)
-                print(len(outline_coords))
-                # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
-                # for i in range(len(digit)):
-                #     for j in range(len(digit[0])):
-                #         digit[i][j] = pixelated[top + j][left + i]
-                # digits.append(digit)
-                vert = right
-                print(left, right, top, bottom)
-                # row = 0
-                # left = 700
-                # right = 0
-                # top = 700
-                # bottom = 0
-                break
+    # for r in range(vert, 700):
+    #     if not checking:
+    #         break
+    #     for c in range(700):
+    #         if pixels[r][c] < 0.5:
+    #             global left
+    #             global row
+    #             global right
+    #             global top
+    #             global bottom
+    #             global recursion
+    #             left = r
+    #             row = c
+    #             checking = False
+    #             # check_neighbor_similarity(row, left)
+    #             print(row, left, ">:(")
+    #             recursion = False
+    #             find_ccw_neighbor(row, left, 1, 0)
+    #             print(outline_coords)
+    #             print(len(outline_coords))
+    #             # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
+    #             # for i in range(len(digit)):
+    #             #     for j in range(len(digit[0])):
+    #             #         digit[i][j] = pixelated[top + j][left + i]
+    #             # digits.append(digit)
+    #             vert = right
+    #             print(left, right, top, bottom)
+    #             # row = 0
+    #             # left = 700
+    #             # right = 0
+    #             # top = 700
+    #             # bottom = 0
+    #             break
         # vert += 1
 
     pxls = []
@@ -287,9 +287,9 @@ def draw_start(r, c):
 
 def draw_grid():
     for i in range(28):
-        pygame.draw.line(screen, (0, 255, 255), (i * 25, 0), (i * 25, 700))
+        pygame.draw.line(screen, (200, 200, 200), (i * 25, 0), (i * 25, 700))
     for j in range(28):
-        pygame.draw.line(screen, (0, 255, 255), (0, j * 25), (700, j * 25))
+        pygame.draw.line(screen, (200, 200, 200), (0, j * 25), (700, j * 25))
 
 
 def analyze(img):
