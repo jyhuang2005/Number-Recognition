@@ -188,13 +188,13 @@ def process_image():
                 global top
                 global bottom
                 global recursion
-                left = c
-                row = r
+                left = r
+                row = c
                 checking = False
                 # check_neighbor_similarity(row, left)
-                print(left, row, ">:(")
+                print(row, left, ">:(")
                 recursion = False
-                find_ccw_neighbor(left, row, 1, 0)
+                find_ccw_neighbor(row, left, 1, 0)
                 print(outline_coords)
                 print(len(outline_coords))
                 # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
@@ -235,7 +235,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
     global recursion
     print(r, c, "O:")
     print(twoD_pixels[c][r].get_color())
-    if r == left and c == row:
+    if r == row and c == left:
         recursion = not recursion
     if recursion:
         if not twoD_pixels[r][c].get_checked():
@@ -365,7 +365,7 @@ while running:
             elif event.key == K_v:
                 if not viewing_orig and len(processed_arr) > 0:
                     show_image(view_num)
-                    draw_start(row, left)
+                    draw_start(left, row)
                     viewing_orig = True
                     viewing_pix = False
                     viewing_outline = False
@@ -376,7 +376,7 @@ while running:
             elif event.key == K_o:
                 if not viewing_outline and len(processed_arr) > 0:
                     show_outline()
-                    draw_start(row, left)
+                    draw_start(left, row)
                     viewing_outline = True
                     viewing_orig = False
                     viewing_pix = False
