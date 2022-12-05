@@ -181,20 +181,20 @@ def process_image():
         if not checking:
             break
         for c in range(700):
-            if pixels[c][r] < 0.5:
+            if pixels[r][c] < 0.5:
                 global left
                 global row
                 global right
                 global top
                 global bottom
                 global recursion
-                top = r
-                row = c
+                left = c
+                row = r
                 checking = False
                 # check_neighbor_similarity(row, left)
-                print(top, row, ">:(")
+                print(left, row, ">:(")
                 recursion = False
-                find_ccw_neighbor(top, row, 1, 0)
+                find_ccw_neighbor(left, row, 1, 0)
                 print(outline_coords)
                 print(len(outline_coords))
                 # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
@@ -235,15 +235,15 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
     global recursion
     print(r, c, "O:")
     print(twoD_pixels[c][r].get_color())
-    if r == top and c == row:
+    if r == left and c == row:
         recursion = not recursion
     if recursion:
         if not twoD_pixels[r][c].get_checked():
             twoD_pixels[r][c].set_checked(True)
         if is_in_bounds(r + c_dir, c - r_dir) and twoD_pixels[c - r_dir][r + c_dir].get_color() == 0:
             print(r + c_dir, c - r_dir, "first")
-            if c - r_dir < left:
-                left = c - r_dir
+            # if c - r_dir < left:
+            #     left = c - r_dir
             if c - r_dir > right:
                 right = c - r_dir
             if r + c_dir < top:
@@ -255,8 +255,8 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             outline_coords.append([r + c_dir, c - r_dir])
         elif is_in_bounds(r + r_dir, c + c_dir) and twoD_pixels[c + c_dir][r + r_dir].get_color() == 0:
             print(r + r_dir, c + c_dir, "second")
-            if c + c_dir < left:
-                left = c + c_dir
+            # if c + c_dir < left:
+            #     left = c + c_dir
             if c + c_dir > right:
                 right = c + c_dir
             if r + r_dir < top:
@@ -268,8 +268,8 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             outline_coords.append([r + r_dir, c + c_dir])
         elif is_in_bounds(r - c_dir, c + r_dir) and twoD_pixels[c + r_dir][r - c_dir].get_color() == 0:
             print(r - c_dir, c + r_dir, "third")
-            if c + r_dir < left:
-                left = c + r_dir
+            # if c + r_dir < left:
+            #     left = c + r_dir
             if c + r_dir > right:
                 right = c + r_dir
             if r - c_dir < top:
@@ -365,7 +365,7 @@ while running:
             elif event.key == K_v:
                 if not viewing_orig and len(processed_arr) > 0:
                     show_image(view_num)
-                    draw_start(row, top)
+                    draw_start(row, left)
                     viewing_orig = True
                     viewing_pix = False
                     viewing_outline = False
@@ -376,7 +376,7 @@ while running:
             elif event.key == K_o:
                 if not viewing_outline and len(processed_arr) > 0:
                     show_outline()
-                    draw_start(row, top)
+                    draw_start(row, left)
                     viewing_outline = True
                     viewing_orig = False
                     viewing_pix = False
