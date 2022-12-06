@@ -5,6 +5,7 @@ import numpy as np
 import layer as la
 import pixel
 import contextlib
+import random
 
 with contextlib.redirect_stdout(None):
     import pygame
@@ -176,41 +177,49 @@ def process_image():
     # digit = []
     checking = True
     vert = 0
-    # while vert <= 700:
-    # for r in range(vert, 700):
-    #     if not checking:
-    #         break
-    #     for c in range(700):
-    #         if pixels[r][c] < 0.5:
-    #             global left
-    #             global row
-    #             global right
-    #             global top
-    #             global bottom
-    #             global recursion
-    #             left = r
-    #             row = c
-    #             checking = False
-    #             # check_neighbor_similarity(row, left)
-    #             print(row, left, ">:(")
-    #             recursion = False
-    #             find_ccw_neighbor(row, left, 1, 0)
-    #             print(outline_coords)
-    #             print(len(outline_coords))
-    #             # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
-    #             # for i in range(len(digit)):
-    #             #     for j in range(len(digit[0])):
-    #             #         digit[i][j] = pixelated[top + j][left + i]
-    #             # digits.append(digit)
-    #             vert = right
-    #             print(left, right, top, bottom)
-    #             # row = 0
-    #             # left = 700
-    #             # right = 0
-    #             # top = 700
-    #             # bottom = 0
-    #             break
-        # vert += 1
+    while vert <= 700:
+        for r in range(vert, 700):
+            # print(vert, "vert")
+            if not checking:
+                checking = True
+                break
+            for c in range(700):
+                # pygame.draw.rect(screen, (0, 0, 0), (r, c, 1, 1))
+                # pygame.display.flip()
+                if pixels[r][c] == 0:
+                    global left
+                    global row
+                    global right
+                    global top
+                    global bottom
+                    global recursion
+                    left = r
+                    row = c
+                    checking = False
+                    # check_neighbor_similarity(row, left)
+                    # print(row, left, ">:(")
+                    recursion = False
+                    find_ccw_neighbor(row, left, 1, 0)
+                    vert = right
+                    recursion = False
+                    # print(outline_coords)
+                    # print(len(outline_coords))
+                    # digits.append(outline_coords)
+                    # outline_coords.clear()
+
+                    # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
+                    # for i in range(len(digit)):
+                    #     for j in range(len(digit[0])):
+                    #         digit[i][j] = pixelated[top + j][left + i]
+                    # digits.append(digit)
+                    print(left, right, top, bottom)
+                    row = 0
+                    left = 700
+                    right = 0
+                    top = 700
+                    bottom = 0
+                    break
+        vert += 1
 
     pxls = []
     for pxl in create_one_dimensional(pixelated):
@@ -233,15 +242,15 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
     global left
     global right
     global recursion
-    print(r, c, "O:")
-    print(twoD_pixels[c][r].get_color())
+    # print(r, c, "O:")
+    # print(twoD_pixels[c][r].get_color())
     if r == row and c == left:
         recursion = not recursion
     if recursion:
         if not twoD_pixels[r][c].get_checked():
             twoD_pixels[r][c].set_checked(True)
         if is_in_bounds(r + c_dir, c - r_dir) and twoD_pixels[c - r_dir][r + c_dir].get_color() == 0:
-            print(r + c_dir, c - r_dir, "first")
+            # print(r + c_dir, c - r_dir, "first")
             # if c - r_dir < left:
             #     left = c - r_dir
             if c - r_dir > right:
@@ -254,7 +263,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             find_ccw_neighbor(r + c_dir, c - r_dir, c_dir, -r_dir)
             outline_coords.append([r + c_dir, c - r_dir])
         elif is_in_bounds(r + r_dir, c + c_dir) and twoD_pixels[c + c_dir][r + r_dir].get_color() == 0:
-            print(r + r_dir, c + c_dir, "second")
+            # print(r + r_dir, c + c_dir, "second")
             # if c + c_dir < left:
             #     left = c + c_dir
             if c + c_dir > right:
@@ -267,7 +276,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
             outline_coords.append([r + r_dir, c + c_dir])
         elif is_in_bounds(r - c_dir, c + r_dir) and twoD_pixels[c + r_dir][r - c_dir].get_color() == 0:
-            print(r - c_dir, c + r_dir, "third")
+            # print(r - c_dir, c + r_dir, "third")
             # if c + r_dir < left:
             #     left = c + r_dir
             if c + r_dir > right:
