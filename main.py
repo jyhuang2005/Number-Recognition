@@ -62,6 +62,8 @@ guess_arr = []
 # 2d Array of Pixel objects, boundary variables
 # twoD_pixelated = [[pixel.Pixel(0)] * 700 for i in range(700)]
 twoD_pixels = []
+outline_coords = []
+borders = []
 row = 0
 left = 700
 right = 0
@@ -175,51 +177,68 @@ def process_image():
 
     digits = []
     # digit = []
+    global left
+    global row
+    global right
+    global top
+    global bottom
     checking = True
     vert = 0
-    while vert <= 700:
+    hor = 0
+    while vert < 700:
+        # print(vert)
         for r in range(vert, 700):
             # print(vert, "vert")
             if not checking:
                 checking = True
                 break
             for c in range(700):
-                # pygame.draw.rect(screen, (0, 0, 0), (r, c, 1, 1))
-                # pygame.display.flip()
-                if pixels[r][c] == 0:
-                    global left
-                    global row
-                    global right
-                    global top
-                    global bottom
-                    global recursion
-                    left = r
-                    row = c
-                    checking = False
-                    # check_neighbor_similarity(row, left)
-                    # print(row, left, ">:(")
-                    recursion = False
-                    find_ccw_neighbor(row, left, 1, 0)
-                    vert = right
-                    recursion = False
-                    # print(outline_coords)
-                    # print(len(outline_coords))
-                    # digits.append(outline_coords)
-                    # outline_coords.clear()
 
-                    # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
-                    # for i in range(len(digit)):
-                    #     for j in range(len(digit[0])):
-                    #         digit[i][j] = pixelated[top + j][left + i]
-                    # digits.append(digit)
-                    print(left, right, top, bottom)
-                    row = 0
-                    left = 700
-                    right = 0
-                    top = 700
-                    bottom = 0
-                    break
-        vert += 1
+                # hor = 0
+                # if random.random() > 0.99:
+                #     print(vert)
+                if (r < left - 1 or r > right + 1) or (c < top - 1 or c > bottom + 1):
+                # if not [c, r] in outline_coords:
+                #     pygame.draw.rect(screen, (0, 255, 255), (r, c, 1, 1))
+                #     if random.random() > 0.999:
+                #         pygame.display.flip()
+                    if pixels[r][c] == 0:
+                        row = 0
+                        left = 700
+                        right = 0
+                        top = 700
+                        bottom = 0
+                        global recursion
+                        left = r
+                        row = c
+                        checking = False
+                        # check_neighbor_similarity(row, left)
+                        # print(row, left, ">:(")
+                        recursion = False
+                        find_ccw_neighbor(row, left, 1, 0)
+                        vert = left
+                        hor = bottom
+                        recursion = False
+                        borders.append([left, right, top, bottom])
+                        # print(outline_coords)
+                        # print(len(outline_coords))
+                        # digits.append(outline_coords)
+                        # outline_coords.clear()
+
+                        # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
+                        # for i in range(len(digit)):
+                        #     for j in range(len(digit[0])):
+                        #         digit[i][j] = pixelated[top + j][left + i]
+                        # digits.append(digit)
+                        print(left, right, top, bottom)
+                        # row = 0
+                        # left = 700
+                        # right = 0
+                        # top = 700
+                        # bottom = 0
+                        break
+            vert += 1
+    #     # hor += 1
 
     pxls = []
     for pxl in create_one_dimensional(pixelated):
@@ -230,9 +249,6 @@ def process_image():
 
 def is_in_bounds(r, c):
     return -1 < r < len(twoD_pixels) and len(twoD_pixels[0]) > c > -1
-
-
-outline_coords = []
 
 
 # recursively finds the outline of a drawing
