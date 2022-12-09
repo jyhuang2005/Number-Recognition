@@ -84,6 +84,7 @@ def process_image():
     max_x = None
     min_y = None
     max_y = None
+    twoD_pixels.clear()
     for r in range(WIDTH):
         pixels.append([])
         twoD_pixels.append([])
@@ -203,20 +204,18 @@ def process_image():
                 #     if random.random() > 0.999:
                 #         pygame.display.flip()
                     if pixels[r][c] == 0:
-                        row = 0
-                        left = 700
+                        row = c
+                        left = r
                         right = 0
                         top = 700
                         bottom = 0
                         global recursion
-                        left = r
-                        row = c
                         checking = False
                         # check_neighbor_similarity(row, left)
                         # print(row, left, ">:(")
                         recursion = False
-                        find_ccw_neighbor(row, left, 1, 0)
                         vert = left
+                        find_ccw_neighbor(row, left, 1, 0)
                         hor = bottom
                         recursion = False
                         borders.append([left, right, top, bottom])
