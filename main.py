@@ -75,104 +75,8 @@ recursion = False
 def process_image():
     sys.setrecursionlimit(10000)
     pixels = []
-
-    r_sum = 0
-    c_sum = 0
-    pix_count = 0
-    color_sum = 0
-    min_x = None
-    max_x = None
-    min_y = None
-    max_y = None
+    pxlss = []
     twoD_pixels.clear()
-    for r in range(WIDTH):
-        pixels.append([])
-        twoD_pixels.append([])
-        for c in range(HEIGHT):
-            pix = screen.get_at((r, c))[0]
-            pixels[r].append(pix)
-            twoD_pixels[r].append(pixel.Pixel(pix))
-            # finding mean location of pixels
-            if pix != 255:
-                pix_color = (255 - pix) / 255
-                r_sum += r * pix_color
-                c_sum += c * pix_color
-                pix_count += 1
-                color_sum += pix_color
-                if min_x is None:
-                    min_x = r
-                elif r < min_x:
-                    min_x = r
-                if max_x is None:
-                    max_x = r + 1
-                elif r + 1 > max_x:
-                    max_x = r + 1
-                if min_y is None:
-                    min_y = c
-                elif c < min_y:
-                    min_y = c
-                if max_y is None:
-                    max_y = c + 1
-                elif c + 1 > max_y:
-                    max_y = c + 1
-
-    need_fix = 0
-    if pix_count == 0:
-        return None, None
-    elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.1:
-        need_fix = 2
-
-    center_x = r_sum // pix_count - WIDTH / 2
-    center_y = c_sum // pix_count - HEIGHT / 2
-
-    # print(max(max_x - min_x, max_y - min_y))
-    scale = max(max_x - min_x, max_y - min_y) / ((20 - need_fix) * WIDTH / 28)
-    scale_constant = WIDTH * (1 - scale) / 2
-    # print(scale, scale_constant)
-
-    pixel_size = 25
-    pixelated = np.zeros((28, 28))
-    total_shade = 0
-    for r in range(28):
-        for c in range(28):
-            av_color = 0
-            for a in range(r * pixel_size, (r + 1) * pixel_size):
-                for b in range(c * pixel_size, (c + 1) * pixel_size):
-                    true_a = round((a + 0.5) * scale + scale_constant + center_x + 0.5)
-                    true_b = round((b + 0.5) * scale + scale_constant + center_y + 0.5)
-                    # if r == 6 and c == 6:
-                    #     print(center_x + WIDTH // 2, true_a)
-                    # if r == 4 or r == 23:
-                    #     print(r, c, true_a, true_b)
-                    if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
-                        av_color += pixels[true_a][true_b]
-                    else:
-                        av_color += 255
-
-            adjusted_shade = (255 - (av_color / (pixel_size ** 2))) / 255
-            pixelated[c][r] = adjusted_shade
-            # twoD_pixelated[c][r] = pixel.Pixel(adjusted_shade)
-            total_shade += adjusted_shade
-
-    # needs fix: after shade adjustment, number too big
-
-    if need_fix == 2:
-        for r in range(28):
-            for c in range(28):
-                if pixelated[r][c] != 0:
-                    pixelated[r][c] = 1
-
-        for r in range(28):
-            for c in range(28):
-                if pixelated[r][c] > 0.9:
-                    if c > 0 and pixelated[r][c - 1] == 0:
-                        pixelated[r][c - 1] = 0.9
-                    if c < 27 and pixelated[r][c + 1] == 0:
-                        pixelated[r][c + 1] = 0.9
-                    if r > 0 and pixelated[r - 1][c] == 0:
-                        pixelated[r - 1][c] = 0.9
-                    if r < 27 and pixelated[r + 1][c] == 0:
-                        pixelated[r + 1][c] = 0.9
 
     # detecting multiple numbers in one image
 
@@ -186,6 +90,15 @@ def process_image():
     checking = True
     vert = 0
     hor = 0
+
+    for r in range(WIDTH):
+        pixels.append([])
+        twoD_pixels.append([])
+        for c in range(HEIGHT):
+            pix = screen.get_at((r, c))[0]
+            pixels[r].append(pix)
+            twoD_pixels[r].append(pixel.Pixel(pix))
+
     while vert < 700:
         # print(vert)
         for r in range(vert, 700):
@@ -199,10 +112,10 @@ def process_image():
                 # if random.random() > 0.99:
                 #     print(vert)
                 if (r < left - 1 or r > right + 1) or (c < top - 1 or c > bottom + 1):
-                # if not [c, r] in outline_coords:
-                #     pygame.draw.rect(screen, (0, 255, 255), (r, c, 1, 1))
-                #     if random.random() > 0.999:
-                #         pygame.display.flip()
+                    # if not [c, r] in outline_coords:
+                    #     pygame.draw.rect(screen, (0, 255, 255), (r, c, 1, 1))
+                    #     if random.random() > 0.999:
+                    #         pygame.display.flip()
                     if pixels[r][c] == 0:
                         row = c
                         left = r
@@ -239,11 +152,129 @@ def process_image():
             vert += 1
     #     # hor += 1
 
-    pxls = []
-    for pxl in create_one_dimensional(pixelated):
-        pxls.append([pxl])
+    # OG Mean location, min and max
+    # min_x = WIDTH
+    # max_x = 0
+    # min_y = HEIGHT
+    # max_y = 0
+    # r_sum = 0
+    # c_sum = 0
+    # pix_count = 0
+    # color_sum = 0
+    # for r in range(WIDTH):
+    #     for c in range(HEIGHT):
+    #         pix = pixels[r][c]
+    #         # finding mean location of pixels
+    #         if pix != 255:
+    #             pix_color = (255 - pix) / 255
+    #             r_sum += r * pix_color
+    #             c_sum += c * pix_color
+    #             pix_count += 1
+    #             color_sum += pix_color
+    #             if min_x is None:
+    #                 min_x = r
+    #             elif r < min_x:
+    #                 min_x = r
+    #             if max_x is None:
+    #                 max_x = r + 1
+    #             elif r + 1 > max_x:
+    #                 max_x = r + 1
+    #             if min_y is None:
+    #                 min_y = c
+    #             elif c < min_y:
+    #                 min_y = c
+    #             if max_y is None:
+    #                 max_y = c + 1
+    #             elif c + 1 > max_y:
+    #                 max_y = c + 1
+    # print(min_x, max_x, min_y, max_y)
 
-    return np.array(pxls), pixels
+    print(borders)
+    for border in borders:
+        min_x = border[0]
+        max_x = border[1] + 1
+        min_y = border[2]
+        max_y = border[3] + 1
+        r_sum = 0
+        c_sum = 0
+        pix_count = 0
+        color_sum = 0
+
+        for r in range(min_x, max_x):
+            for c in range(min_y, max_y):
+                pix = pixels[r][c]
+                # finding mean location of pixels
+                if pix != 255:
+                    pix_color = (255 - pix) / 255
+                    r_sum += r * pix_color
+                    c_sum += c * pix_color
+                    pix_count += 1
+                    color_sum += pix_color
+
+        need_fix = 0
+        if pix_count == 0:
+            return None, None
+        elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.1:
+            need_fix = 2
+
+        center_x = r_sum // pix_count - WIDTH / 2
+        center_y = c_sum // pix_count - HEIGHT / 2
+
+        # print(max(max_x - min_x, max_y - min_y))
+        scale = max(max_x - min_x, max_y - min_y) / ((20 - need_fix) * WIDTH / 28)
+        scale_constant = WIDTH * (1 - scale) / 2
+        # print(scale, scale_constant)
+
+        pixel_size = 25
+        pixelated = np.zeros((28, 28))
+        total_shade = 0
+        for r in range(28):
+            for c in range(28):
+                av_color = 0
+                for a in range(r * pixel_size, (r + 1) * pixel_size):
+                    for b in range(c * pixel_size, (c + 1) * pixel_size):
+                        true_a = round((a + 0.5) * scale + scale_constant + center_x + 0.5)
+                        true_b = round((b + 0.5) * scale + scale_constant + center_y + 0.5)
+                        # if r == 6 and c == 6:
+                        #     print(center_x + WIDTH // 2, true_a)
+                        # if r == 4 or r == 23:
+                        #     print(r, c, true_a, true_b)
+                        if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
+                            av_color += pixels[true_a][true_b]
+                        else:
+                            av_color += 255
+
+                adjusted_shade = (255 - (av_color / (pixel_size ** 2))) / 255
+                pixelated[c][r] = adjusted_shade
+                # twoD_pixelated[c][r] = pixel.Pixel(adjusted_shade)
+                total_shade += adjusted_shade
+
+        # needs fix: after shade adjustment, number too big
+
+        if need_fix == 2:
+            for r in range(28):
+                for c in range(28):
+                    if pixelated[r][c] != 0:
+                        pixelated[r][c] = 1
+
+            for r in range(28):
+                for c in range(28):
+                    if pixelated[r][c] > 0.9:
+                        if c > 0 and pixelated[r][c - 1] == 0:
+                            pixelated[r][c - 1] = 0.9
+                        if c < 27 and pixelated[r][c + 1] == 0:
+                            pixelated[r][c + 1] = 0.9
+                        if r > 0 and pixelated[r - 1][c] == 0:
+                            pixelated[r - 1][c] = 0.9
+                        if r < 27 and pixelated[r + 1][c] == 0:
+                            pixelated[r + 1][c] = 0.9
+
+        pxls = []
+        for pxl in create_one_dimensional(pixelated):
+            pxls.append([pxl])
+        pxlss.append(np.array(pxls))
+
+    return pxlss, pixels
 
 
 def is_in_bounds(r, c):
@@ -379,11 +410,12 @@ while running:
             draw_grid()
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
             if event.key == K_SPACE and not (viewing_orig or viewing_pix):
-                image, orig_image = process_image()
-                if image is not None:
+                images, orig_image = process_image()
+                if images is not None:
                     drawn_arr.append(orig_image)
-                    processed_arr.append(image)
-                    guess_arr.append(analyze(image))
+                    for image in images:
+                        processed_arr.append(image)
+                        guess_arr.append(analyze(image))
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_v:
