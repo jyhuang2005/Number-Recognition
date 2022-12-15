@@ -58,6 +58,7 @@ screen.fill((255, 255, 255))
 drawn_arr = []
 processed_arr = []
 guess_arr = []
+orig_guess_arr = []
 
 # 2d Array of Pixel objects, boundary variables
 # twoD_pixelated = [[pixel.Pixel(0)] * 700 for i in range(700)]
@@ -417,10 +418,15 @@ while running:
                 num_images_arr.append(len(images))
                 if images is not None:
                     drawn_arr.append(orig_image)
+                    multi_digit = []
                     for image in images:
                         processed_arr.append(image)
-                        guess_arr.append(analyze(image))
+                        analyzed = analyze(image)
+                        guess_arr.append(analyzed)
+                        multi_digit.append(analyzed)
                         print(len(images), len(processed_arr))
+                    orig_guess_arr.append(multi_digit)
+                    # multi_digit.clear()
                     # print(images)
                 print(num_images_arr, "!!!")
                 screen.fill((255, 255, 255))
@@ -471,9 +477,11 @@ while running:
                 else:
                     if len(num_images_arr) > view_num + 1:
                         view_num += 1
+                        # for i in range()
+                        # view_pix_num += 1
                     elif len(num_images_arr) > 1:
                         view_num = 0
-                        view_pix_num = 0
+                        # view_pix_num = 0
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
@@ -489,9 +497,10 @@ while running:
                 else:
                     if view_num > 0:
                         view_num -= 1
+                        # view_pix_num -= 1
                     elif len(num_images_arr) > 1:
                         view_num = len(num_images_arr) - 1
-                        view_pix_num = len(num_images_arr) - 1
+                        # view_pix_num = len(num_images_arr) - 1
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
@@ -503,6 +512,7 @@ while running:
                 drawn_arr.clear()
                 processed_arr.clear()
                 guess_arr.clear()
+                orig_guess_arr.clear()
                 num_images_arr.clear()
                 viewing_orig = False
                 viewing_pix = False
@@ -511,13 +521,18 @@ while running:
             elif event.key == K_ESCAPE:
                 running = False
             if viewing_orig or viewing_outline:
-                guess = ""
-                v = view_num - 1
-                if v < 0:
-                    v = 0
-                for g in range(view_pix_num, view_pix_num + num_images_arr[view_num]):
-                    guess += str(guess_arr[g])
-                    view_pix_num += 1
+                guess = ''
+                num = num_images_arr[view_num]
+                # if view_pix_num == 0:
+                #     num = 0
+                # for g in range(view_pix_num, view_pix_num + num_images_arr[view_num]):
+                #     print(g, "g")
+                #     print(orig_guess_arr)
+                #     guess += str(guess_arr[g])
+                #     # if len(num_images_arr) != 1:
+                #     #     view_pix_num += 1
+                for g in orig_guess_arr[view_num]:
+                    guess += str(g)
                 pygame.display.set_caption(
                     f'Viewing {view_num + 1}/{len(num_images_arr)} - Guess: {guess}')
             elif viewing_pix:
