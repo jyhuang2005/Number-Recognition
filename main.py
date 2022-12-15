@@ -402,7 +402,7 @@ viewing_orig = False
 viewing_outline = False
 view_num = 0
 view_pix_num = 0
-num_images = 0
+num_images_arr = []
 
 
 while running:
@@ -413,15 +413,16 @@ while running:
             draw_grid()
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
             if event.key == K_SPACE and not (viewing_orig or viewing_pix):
-                num_images += 1
                 images, orig_image = process_image()
+                num_images_arr.append(len(images))
                 if images is not None:
                     drawn_arr.append(orig_image)
                     for image in images:
                         processed_arr.append(image)
                         guess_arr.append(analyze(image))
                         print(len(images), len(processed_arr))
-                        print(images)
+                    # print(images)
+                print(num_images_arr, "!!!")
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_v:
@@ -460,6 +461,7 @@ while running:
                     view_num = 0
                     view_pix_num = 0
             elif event.key == K_RIGHT and (viewing_orig or viewing_pix or viewing_outline):
+                print(view_num, view_pix_num)
                 if viewing_pix:
                     if len(processed_arr) > view_pix_num + 1:
                         view_pix_num += 1
@@ -467,15 +469,17 @@ while running:
                         view_pix_num = 0
                     show_pixelated(view_pix_num)
                 else:
-                    if num_images > view_num + 1:
+                    if len(num_images_arr) > view_num + 1:
                         view_num += 1
-                    elif num_images > 1:
+                    elif len(num_images_arr) > 1:
                         view_num = 0
+                        view_pix_num = 0
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
                         show_outline()
             elif event.key == K_LEFT and (viewing_orig or viewing_pix):
+                print(view_num, view_pix_num)
                 if viewing_pix:
                     if view_pix_num > 0:
                         view_pix_num -= 1
@@ -485,8 +489,9 @@ while running:
                 else:
                     if view_num > 0:
                         view_num -= 1
-                    elif num_images > 1:
-                        view_num = num_images - 1
+                    elif len(num_images_arr) > 1:
+                        view_num = len(num_images_arr) - 1
+                        view_pix_num = len(num_images_arr) - 1
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
@@ -498,7 +503,7 @@ while running:
                 drawn_arr.clear()
                 processed_arr.clear()
                 guess_arr.clear()
-                num_images = 0
+                num_images_arr.clear()
                 viewing_orig = False
                 viewing_pix = False
                 viewing_outline = False
@@ -506,8 +511,15 @@ while running:
             elif event.key == K_ESCAPE:
                 running = False
             if viewing_orig or viewing_outline:
+                guess = ""
+                v = view_num - 1
+                if v < 0:
+                    v = 0
+                for g in range(view_pix_num, view_pix_num + num_images_arr[view_num]):
+                    guess += str(guess_arr[g])
+                    view_pix_num += 1
                 pygame.display.set_caption(
-                    f'Viewing {view_num + 1}/{num_images} - Guess: {guess_arr[view_num]}')
+                    f'Viewing {view_num + 1}/{len(num_images_arr)} - Guess: {guess}')
             elif viewing_pix:
                 pygame.display.set_caption(
                     f'Viewing {view_pix_num + 1}/{len(processed_arr)} - Guess: {guess_arr[view_pix_num]}')
