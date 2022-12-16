@@ -72,6 +72,12 @@ top = 700
 bottom = 0
 recursion = False
 
+x = 0
+y = 0
+outline_array = np.empty((700, 700))
+outline_array.fill(-1)
+num_index = 0
+
 
 def process_image():
     sys.setrecursionlimit(10000)
@@ -93,6 +99,12 @@ def process_image():
     vert = 0
     hor = 0
 
+    global outline_array
+    global num_index
+    outline_array = np.empty((700, 700))
+    outline_array.fill(-1)
+    num_index = 0
+
     for r in range(WIDTH):
         pixels.append([])
         twoD_pixels.append([])
@@ -102,22 +114,13 @@ def process_image():
             twoD_pixels[r].append(pixel.Pixel(pix))
 
     while vert < 700:
-        # print(vert)
         for r in range(vert, 700):
-            # print(vert, "vert")
             if not checking:
                 checking = True
+                num_index += 1
                 break
             for c in range(700):
-
-                # hor = 0
-                # if random.random() > 0.99:
-                #     print(vert)
                 if (r < left - 1 or r > right + 1) or (c < top - 1 or c > bottom + 1):
-                    # if not [c, r] in outline_coords:
-                    # pygame.draw.rect(screen, (0, 255, 255), (r, c, 1, 1))
-                    # if random.random() > 0.999:
-                    #     pygame.display.flip()
                     if pixels[r][c] == 0:
                         row = c
                         left = r
@@ -126,33 +129,27 @@ def process_image():
                         bottom = 0
                         global recursion
                         checking = False
-                        # check_neighbor_similarity(row, left)
-                        # print(row, left, ">:(")
                         recursion = False
                         vert = left
+                        outline_array[c, r] = num_index
+                        outline_coords.append([c, r])
                         find_ccw_neighbor(row, left, 1, 0)
                         hor = bottom
                         recursion = False
                         borders.append([left, right, top, bottom])
-                        # print(outline_coords)
-                        # print(len(outline_coords))
-                        # digits.append(outline_coords)
-                        # outline_coords.clear()
-
-                        # digit = [[pixel.Pixel(0)] * (bottom - top + 1) for i in range(right - left + 1)]
-                        # for i in range(len(digit)):
-                        #     for j in range(len(digit[0])):
-                        #         digit[i][j] = pixelated[top + j][left + i]
-                        # digits.append(digit)
                         print(left, right, top, bottom)
-                        # row = 0
-                        # left = 700
-                        # right = 0
-                        # top = 700
-                        # bottom = 0
                         break
             vert += 1
-    #     # hor += 1
+
+    # global x
+    # global y
+    # global outline_array
+    # global num_index
+    #
+    # while x != 700 or y != 700:
+    #     for r in range(y, 700):
+    #
+
 
     # OG Mean location, min and max
     # min_x = WIDTH
@@ -192,26 +189,42 @@ def process_image():
     # print(min_x, max_x, min_y, max_y)
 
     print(borders)
-    for border in borders:
-        min_x = border[0]
-        max_x = border[1] + 1
-        min_y = border[2]
-        max_y = border[3] + 1
+    for i in range(0, len(borders)):
+        border = borders[i]
+        min_y = border[0]
+        max_y = border[1] + 1
+        min_x = border[2]
+        max_x = border[3] + 1
         r_sum = 0
         c_sum = 0
         pix_count = 0
         color_sum = 0
 
-        for r in range(min_x, max_x):
-            for c in range(min_y, max_y):
-                pix = pixels[r][c]
-                # finding mean location of pixels
-                if pix != 255:
-                    pix_color = (255 - pix) / 255
-                    r_sum += r * pix_color
-                    c_sum += c * pix_color
-                    pix_count += 1
-                    color_sum += pix_color
+        filtered_pixels = [row[:] for row in pixels]
+
+        for r in range(0, 700):
+            inside = False
+            for c in range(0, 700):
+                switch = outline_array[c, r] == i
+                if not inside:
+                    if switch:
+                        inside = True
+                        switch = False
+                    else:
+                        filtered_pixels[r][c] = 255
+                if inside:
+                    pix = pixels[r][c]
+
+                    # finding mean location of pixels
+                    if pix != 255:
+                        pix_color = (255 - pix) / 255
+                        r_sum += r * pix_color
+                        c_sum += c * pix_color
+                        pix_count += 1
+                        color_sum += pix_color
+
+                    if switch:
+                        inside = False
 
         need_fix = 0
         if pix_count == 0:
@@ -242,7 +255,7 @@ def process_image():
                         # if r == 4 or r == 23:
                         #     print(r, c, true_a, true_b)
                         if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
-                            av_color += pixels[true_a][true_b]
+                            av_color += filtered_pixels[true_a][true_b]
                         else:
                             av_color += 255
 
@@ -309,7 +322,6 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
                 bottom = r + c_dir
 
             find_ccw_neighbor(r + c_dir, c - r_dir, c_dir, -r_dir)
-            outline_coords.append([r + c_dir, c - r_dir])
         elif is_in_bounds(r + r_dir, c + c_dir) and twoD_pixels[c + c_dir][r + r_dir].get_color() == 0:
             # print(r + r_dir, c + c_dir, "second")
             # if c + c_dir < left:
@@ -321,8 +333,10 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             if r + r_dir > bottom:
                 bottom = r + r_dir
 
+            if r_dir == 0:
+                outline_array[r, c] = num_index
+                outline_coords.append([r, c])
             find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
-            outline_coords.append([r + r_dir, c + c_dir])
         elif is_in_bounds(r - c_dir, c + r_dir) and twoD_pixels[c + r_dir][r - c_dir].get_color() == 0:
             # print(r - c_dir, c + r_dir, "third")
             # if c + r_dir < left:
@@ -334,8 +348,10 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             if r - c_dir > bottom:
                 bottom = r - c_dir
 
+            outline_array[r, c] = num_index
+            outline_coords.append([r, c])
             find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
-            outline_coords.append([r - c_dir, c + r_dir])
+
 
 
 def draw_start(r, c):
