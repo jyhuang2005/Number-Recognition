@@ -493,11 +493,11 @@ while running:
                 else:
                     if len(num_images_arr) > view_num + 1:
                         view_num += 1
-                        # for i in range()
-                        # view_pix_num += 1
+                        for i in range(len(orig_guess_arr[view_num])):
+                            view_pix_num += 1
                     elif len(num_images_arr) > 1:
                         view_num = 0
-                        # view_pix_num = 0
+                        view_pix_num = 0
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
@@ -514,6 +514,8 @@ while running:
                     if view_num > 0:
                         view_num -= 1
                         # view_pix_num -= 1
+                        for i in range(len(orig_guess_arr[view_num])):
+                            view_pix_num -= 1
                     elif len(num_images_arr) > 1:
                         view_num = len(num_images_arr) - 1
                         # view_pix_num = len(num_images_arr) - 1
@@ -538,15 +540,6 @@ while running:
                 running = False
             if viewing_orig or viewing_outline:
                 guess = ''
-                num = num_images_arr[view_num]
-                # if view_pix_num == 0:
-                #     num = 0
-                # for g in range(view_pix_num, view_pix_num + num_images_arr[view_num]):
-                #     print(g, "g")
-                #     print(orig_guess_arr)
-                #     guess += str(guess_arr[g])
-                #     # if len(num_images_arr) != 1:
-                #     #     view_pix_num += 1
                 for g in orig_guess_arr[view_num]:
                     guess += str(g)
                 pygame.display.set_caption(
