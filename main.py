@@ -420,7 +420,7 @@ viewing_outline = False
 view_num = 0
 view_pix_num = 0
 num_images_arr = []
-
+count = 0
 
 while running:
     for event in pygame.event.get():
@@ -440,11 +440,7 @@ while running:
                         analyzed = analyze(image)
                         guess_arr.append(analyzed)
                         multi_digit.append(analyzed)
-                        print(len(images), len(processed_arr))
                     orig_guess_arr.append(multi_digit)
-                    # multi_digit.clear()
-                    # print(images)
-                print(num_images_arr, "!!!")
                 screen.fill((255, 255, 255))
                 first = True
             elif event.key == K_v:
@@ -459,6 +455,7 @@ while running:
                     screen.fill((255, 255, 255))
                     view_num = 0
                     view_pix_num = 0
+                    count = 0
             elif event.key == K_o:
                 if not viewing_outline and len(processed_arr) > 0:
                     show_outline()
@@ -471,6 +468,7 @@ while running:
                     screen.fill((255, 255, 255))
                     view_num = 0
                     view_pix_num = 0
+                    count = 0
             elif event.key == K_p:
                 if not viewing_pix and len(processed_arr) > 0:
                     show_pixelated(view_pix_num)
@@ -482,43 +480,61 @@ while running:
                     screen.fill((255, 255, 255))
                     view_num = 0
                     view_pix_num = 0
+                    count = 0
             elif event.key == K_RIGHT and (viewing_orig or viewing_pix or viewing_outline):
-                print(view_num, view_pix_num)
                 if viewing_pix:
                     if len(processed_arr) > view_pix_num + 1:
                         view_pix_num += 1
+                        count += 1
+                        if count == len(orig_guess_arr[view_num]):
+                            view_num += 1
+                            count = 0
                     elif len(processed_arr) > 1:
                         view_pix_num = 0
+                        view_num = 0
+                        count = 0
                     show_pixelated(view_pix_num)
                 else:
                     if len(num_images_arr) > view_num + 1:
                         view_num += 1
-                        for i in range(len(orig_guess_arr[view_num])):
+                        v = view_num - 1
+                        if v < 0:
+                            v = 0
+                        for i in range(len(orig_guess_arr[v])):
                             view_pix_num += 1
                     elif len(num_images_arr) > 1:
                         view_num = 0
                         view_pix_num = 0
+                        count = 0
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
                         show_outline()
             elif event.key == K_LEFT and (viewing_orig or viewing_pix):
-                print(view_num, view_pix_num)
                 if viewing_pix:
                     if view_pix_num > 0:
                         view_pix_num -= 1
+                        count -= 1
+                        v = view_num - 1
+                        if v < 0:
+                            v = 0
+                        if count == -1:
+                            view_num -= 1
+                            count = len(orig_guess_arr[v]) - 1
                     elif len(processed_arr) > 1:
                         view_pix_num = len(processed_arr) - 1
+                        view_num = len(num_images_arr) - 1
+                        count = len(orig_guess_arr[view_num - 1])
                     show_pixelated(view_pix_num)
                 else:
                     if view_num > 0:
                         view_num -= 1
-                        # view_pix_num -= 1
                         for i in range(len(orig_guess_arr[view_num])):
                             view_pix_num -= 1
                     elif len(num_images_arr) > 1:
                         view_num = len(num_images_arr) - 1
-                        # view_pix_num = len(num_images_arr) - 1
+                        view_pix_num = len(processed_arr) - 1
+                        count = len(orig_guess_arr[view_num - 1])
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
