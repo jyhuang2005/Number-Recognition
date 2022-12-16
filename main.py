@@ -113,43 +113,66 @@ def process_image():
             pixels[r].append(pix)
             twoD_pixels[r].append(pixel.Pixel(pix))
 
-    while vert < 700:
-        for r in range(vert, 700):
-            if not checking:
-                checking = True
-                num_index += 1
-                break
-            for c in range(700):
-                if (r < left - 1 or r > right + 1) or (c < top - 1 or c > bottom + 1):
-                    if pixels[r][c] == 0:
-                        row = c
-                        left = r
-                        right = 0
-                        top = 700
-                        bottom = 0
-                        global recursion
-                        checking = False
-                        recursion = False
-                        vert = left
-                        outline_array[c, r] = num_index
-                        outline_coords.append([c, r])
-                        find_ccw_neighbor(row, left, 1, 0)
-                        hor = bottom
-                        recursion = False
-                        borders.append([left, right, top, bottom])
-                        print(left, right, top, bottom)
-                        break
-            vert += 1
+    # while vert < 700:
+    #     for r in range(vert, 700):
+    #         if not checking:
+    #             checking = True
+    #             num_index += 1
+    #             break
+    #         for c in range(700):
+    #             if (r < left - 1 or r > right + 1) or (c < top - 1 or c > bottom + 1):
+    #                 if pixels[r][c] == 0:
+    #                     row = c
+    #                     left = r
+    #                     right = 0
+    #                     top = 700
+    #                     bottom = 0
+    #                     global recursion
+    #                     checking = False
+    #                     recursion = False
+    #                     vert = left
+    #                     outline_array[c, r] = num_index
+    #                     outline_coords.append([c, r])
+    #                     find_ccw_neighbor(row, left, 1, 0)
+    #                     hor = bottom
+    #                     recursion = False
+    #                     borders.append([left, right, top, bottom])
+    #                     print(left, right, top, bottom)
+    #                     break
+    #         vert += 1
 
-    # global x
-    # global y
-    # global outline_array
-    # global num_index
-    #
-    # while x != 700 or y != 700:
-    #     for r in range(y, 700):
-    #
+    global x
+    global y
+    global recursion
+    x = 0
+    y = 0
 
+    for r in range(0, 700):
+        inside = False
+        for c in range(0, 700):
+            switch = outline_array[c, r] != -1
+            if not inside:
+                if switch:
+                    inside = True
+                    switch = False
+            if not inside:
+                if pixels[r][c] == 0:
+                    inside = True
+                    row = c
+                    left = r
+                    right = 0
+                    top = 700
+                    bottom = 0
+                    outline_array[c, r] = num_index
+                    outline_coords.append([c, r])
+                    recursion = False
+                    find_ccw_neighbor(c, r, 1, 0)
+                    borders.append([left, right, top, bottom])
+                    print(left, right, top, bottom)
+                    num_index += 1
+            if inside:
+                if switch:
+                    inside = False
 
     # OG Mean location, min and max
     # min_x = WIDTH
