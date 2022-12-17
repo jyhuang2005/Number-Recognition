@@ -376,7 +376,6 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
 
 
-
 def draw_start(r, c):
     pygame.draw.rect(screen, (255, 0, 0), (r, c, 3, 3))
 
@@ -449,8 +448,6 @@ while running:
     for event in pygame.event.get():
         current_x = pygame.mouse.get_pos()[0]
         current_y = pygame.mouse.get_pos()[1]
-        if viewing_pix:
-            draw_grid()
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
             if event.key == K_SPACE and not (viewing_orig or viewing_pix):
                 images, orig_image = process_image()
@@ -495,6 +492,7 @@ while running:
             elif event.key == K_p:
                 if not viewing_pix and len(processed_arr) > 0:
                     show_pixelated(view_pix_num)
+                    draw_grid()
                     viewing_pix = True
                     viewing_orig = False
                     viewing_outline = False
@@ -517,9 +515,11 @@ while running:
                         view_num = 0
                         count = 0
                     show_pixelated(view_pix_num)
+                    draw_grid()
                 else:
                     if len(num_images_arr) > view_num + 1:
                         view_num += 1
+                        count = 0
                         v = view_num - 1
                         if v < 0:
                             v = 0
@@ -547,17 +547,22 @@ while running:
                     elif len(processed_arr) > 1:
                         view_pix_num = len(processed_arr) - 1
                         view_num = len(num_images_arr) - 1
-                        count = len(orig_guess_arr[view_num - 1])
+                        count = len(orig_guess_arr[view_num]) - 1
                     show_pixelated(view_pix_num)
+                    draw_grid()
                 else:
                     if view_num > 0:
                         view_num -= 1
+                        v = view_num - 1
+                        if v < 0:
+                            v = 0
+                        count = len(orig_guess_arr[v]) - 1
                         for i in range(len(orig_guess_arr[view_num])):
                             view_pix_num -= 1
                     elif len(num_images_arr) > 1:
                         view_num = len(num_images_arr) - 1
                         view_pix_num = len(processed_arr) - 1
-                        count = len(orig_guess_arr[view_num - 1])
+                        count = len(orig_guess_arr[view_num]) - 1
                     if viewing_orig:
                         show_image(view_num)
                     elif viewing_outline:
@@ -575,6 +580,8 @@ while running:
                 viewing_pix = False
                 viewing_outline = False
                 view_num = 0
+                view_pix_num = 0
+                count = 0
             elif event.key == K_ESCAPE:
                 running = False
             if viewing_orig or viewing_outline:
