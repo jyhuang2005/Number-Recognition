@@ -74,13 +74,12 @@ recursion = False
 
 x = 0
 y = 0
-outline_array = np.empty((700, 700))
-outline_array.fill(-1)
+outline_array = [[[-1] for i in range(700)] for j in range(700)]
 num_index = 0
 
 
 def process_image():
-    sys.setrecursionlimit(10000)
+    sys.setrecursionlimit(30000)
     pixels = []
     pxlss = []
     twoD_pixels.clear()
@@ -101,8 +100,7 @@ def process_image():
 
     global outline_array
     global num_index
-    outline_array = np.empty((700, 700))
-    outline_array.fill(-1)
+    outline_array = [[[-1] for _ in range(700)] for _ in range(700)]
     num_index = 0
 
     for r in range(WIDTH):
@@ -150,7 +148,7 @@ def process_image():
     for r in range(0, 700):
         inside = False
         for c in range(0, 700):
-            switch = outline_array[c, r] != -1
+            switch = outline_array[c][r][0] != -1
             if not inside:
                 if switch:
                     inside = True
@@ -163,7 +161,10 @@ def process_image():
                     right = 0
                     top = 700
                     bottom = 0
-                    outline_array[c, r] = num_index
+                    if outline_array[c][r][0] == -1:
+                        outline_array[c][r][0] = num_index
+                    else:
+                        outline_array[c][r].append(num_index)
                     outline_coords.append([c, r])
                     recursion = False
                     find_ccw_neighbor(c, r, 1, 0)
@@ -171,7 +172,7 @@ def process_image():
                     print(left, right, top, bottom)
                     num_index += 1
             if inside:
-                if switch:
+                if switch or len(outline_array[c][r]) % 2 == 0:
                     inside = False
 
     # OG Mean location, min and max
@@ -228,7 +229,7 @@ def process_image():
         for r in range(0, 700):
             inside = False
             for c in range(0, 700):
-                switch = outline_array[c, r] == i
+                switch = outline_array[c][r][0] == i
                 if not inside:
                     if switch:
                         inside = True
@@ -246,13 +247,13 @@ def process_image():
                         pix_count += 1
                         color_sum += pix_color
 
-                    if switch:
+                    if switch or len(outline_array[c][r]) % 2 == 0:
                         inside = False
 
         need_fix = 0
         if pix_count == 0:
             return None, None
-        elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.1:
+        elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.2:
             need_fix = 2
 
         center_x = r_sum // pix_count - WIDTH / 2
@@ -357,7 +358,10 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
                 bottom = r + r_dir
 
             if r_dir == 0:
-                outline_array[r, c] = num_index
+                if outline_array[r][c][0] == -1:
+                    outline_array[r][c][0] = num_index
+                else:
+                    outline_array[r][c].append(num_index)
                 outline_coords.append([r, c])
             find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
         elif is_in_bounds(r - c_dir, c + r_dir) and twoD_pixels[c + r_dir][r - c_dir].get_color() == 0:
@@ -371,7 +375,10 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
             if r - c_dir > bottom:
                 bottom = r - c_dir
 
-            outline_array[r, c] = num_index
+            if outline_array[r][c][0] == -1:
+                outline_array[r][c][0] = num_index
+            else:
+                outline_array[r][c].append(num_index)
             outline_coords.append([r, c])
             find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
 
