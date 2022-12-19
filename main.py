@@ -256,7 +256,7 @@ def process_image():
         need_fix = 0
         if pix_count == 0:
             return None, None
-        elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.2:
+        elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.15:
             need_fix = 3
 
         center_x = r_sum // pix_count - WIDTH / 2
@@ -303,13 +303,13 @@ def process_image():
                 for c in range(28):
                     if pixelated[r][c] > 0.9:
                         if c > 0 and pixelated[r][c - 1] == 0:
-                            pixelated[r][c - 1] = 0.9
+                            pixelated[r][c - 1] = 0.5
                         if c < 27 and pixelated[r][c + 1] == 0:
-                            pixelated[r][c + 1] = 0.9
+                            pixelated[r][c + 1] = 0.5
                         if r > 0 and pixelated[r - 1][c] == 0:
-                            pixelated[r - 1][c] = 0.9
+                            pixelated[r - 1][c] = 0.5
                         if r < 27 and pixelated[r + 1][c] == 0:
-                            pixelated[r + 1][c] = 0.9
+                            pixelated[r + 1][c] = 0.5
 
         pxls = []
         for pxl in create_one_dimensional(pixelated):
