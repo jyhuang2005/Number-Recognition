@@ -148,6 +148,8 @@ def process_image():
     for r in range(0, 700):
         inside = False
         for c in range(0, 700):
+            if len(outline_array[c][r]) >= 2:
+                print(len(outline_array[c][r]))
             switch = outline_array[c][r][0] != -1
             if not inside:
                 if switch:
@@ -165,6 +167,7 @@ def process_image():
                         outline_array[c][r][0] = num_index
                     else:
                         outline_array[c][r].append(num_index)
+                        print('hi', outline_array[c][r])
                     outline_coords.append([c, r])
                     recursion = False
                     find_ccw_neighbor(c, r, 1, 0)
@@ -254,7 +257,7 @@ def process_image():
         if pix_count == 0:
             return None, None
         elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.2:
-            need_fix = 2
+            need_fix = 3
 
         center_x = r_sum // pix_count - WIDTH / 2
         center_y = c_sum // pix_count - HEIGHT / 2
@@ -290,7 +293,7 @@ def process_image():
 
         # needs fix: after shade adjustment, number too big
 
-        if need_fix == 2:
+        if need_fix == 3:
             for r in range(28):
                 for c in range(28):
                     if pixelated[r][c] != 0:
@@ -362,6 +365,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
                     outline_array[r][c][0] = num_index
                 else:
                     outline_array[r][c].append(num_index)
+                    print('hi', outline_array[r][c])
                 outline_coords.append([r, c])
             find_ccw_neighbor(r + r_dir, c + c_dir, r_dir, c_dir)
         elif is_in_bounds(r - c_dir, c + r_dir) and twoD_pixels[c + r_dir][r - c_dir].get_color() == 0:
@@ -379,6 +383,7 @@ def find_ccw_neighbor(r, c, r_dir, c_dir):
                 outline_array[r][c][0] = num_index
             else:
                 outline_array[r][c].append(num_index)
+                print('hi', outline_array[r][c])
             outline_coords.append([r, c])
             find_ccw_neighbor(r - c_dir, c + r_dir, -c_dir, r_dir)
 
