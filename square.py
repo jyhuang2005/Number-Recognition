@@ -1,9 +1,10 @@
 class Square:
     def __init__(self, solved=0):
-        if solved != 0:
-            self.solved = solved
-        else:
+        self.solved = solved
+        if solved == 0:
             self.pbls = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        else:
+            self.pbls = []
 
     def elim(self, num):
         self.pbls.remove(num)
