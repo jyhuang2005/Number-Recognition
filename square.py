@@ -5,9 +5,8 @@ class Square:
         else:
             self.pbls = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    def elim(self, nums):
-        for val in nums:
-            self.pbls.remove(val)
+    def elim(self, num):
+        self.pbls.remove(num)
 
         if len(self.pbls) == 1:
             self.solved = self.pbls[0]
