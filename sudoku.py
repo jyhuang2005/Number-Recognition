@@ -2,17 +2,18 @@ import square
 
 board = []
 queue = []
-for i in range(3):
-    board.append([])
-    for j in range(3):
-        board[i].append([])
-        for r in range(3):
-            board[i][j].append([])
-            for c in range(3):
-                board[i][j][r].append(square.Square())
 
 
-print(board)
+def create_board():
+    for i in range(3):
+        board.append([])
+        for j in range(3):
+            board[i].append([])
+            for r in range(3):
+                board[i][j].append([])
+                for c in range(3):
+                    board[i][j][r].append(square.Square())
+
 
 while len(queue) != 1:
     (x1, y1, x2, y2) = queue[0] #(0, 1, 2, 3)
