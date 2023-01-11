@@ -2,9 +2,39 @@ import square
 
 board = []
 queue = []
+board_nums = [[[[0, 0, 0],
+                [0, 0, 0],
+                [1, 7, 0]],
+               [[3, 9, 1],
+                [7, 0, 0],
+                [4, 0, 0]],
+               [[2, 4, 7],
+                [1, 9, 0],
+                [0, 0, 3]]],
+              [[[0, 6, 0],
+                [8, 1, 0],
+                [4, 0, 0]],
+               [[5, 0, 0],
+                [0, 7, 0],
+                [1, 8, 9]],
+               [[0, 0, 1],
+                [0, 3, 0],
+                [5, 0, 6]]],
+              [[[6, 0, 8],
+                [0, 0, 0],
+                [2, 0, 1]],
+               [[9, 0, 7],
+                [2, 1, 0],
+                [0, 0, 0]],
+               [[3, 1, 0],
+                [9, 0, 0],
+                [6, 0, 0]]]]
 
 
-def create_board():
+# board indices used are either i, j, r, c OR x1, y1, x2, y2
+
+
+def create_board(nums):
     for i in range(3):
         board.append([])
         for j in range(3):
@@ -12,34 +42,57 @@ def create_board():
             for r in range(3):
                 board[i][j].append([])
                 for c in range(3):
-                    board[i][j][r].append(square.Square())
+                    num = nums[i][j][r][c]
+                    if num != 0:
+                        board[i][j][r].append(square.Square(num))
+                        queue.append((i, j, r, c, num))
+                    else:
+                        board[i][j][r].append(square.Square())
 
 
-while len(queue) != 1:
-    (x1, y1, x2, y2) = queue[0] #(0, 1, 2, 3)
+create_board(board_nums)
+
+while len(queue) > 0:
+    (x1, y1, x2, y2, val) = queue[0]  # (0, 1, 2, 3)
     check_square = board[x1][y1][x2][y2]
-    check_val = check_square.solved
+    # print((x1, y1, x2, y2, val))
 
-    #elim box
-    for row in range(3):
-        for col in range(3):
-            if check_square[x1][y2][row][col].elim(check_val) != 0:
-                queue.append((x1, y1, row, col))
+    # elim box
+    for r in range(3):
+        for c in range(3):
+            new_val = board[x1][y1][r][c].elim(val)
+            if new_val != 0:
+                board_nums[x1][y1][r][c] = new_val
+                queue.append((x1, y1, r, c, new_val))
 
-    #elim row
-    for big_col in range(3):
-        if big_col != y1:
-            for col in range(3):
-                if board[x1][big_col][x2][col].elim(check_val) != 0:
-                    queue.append((x1, big_col, x2, col))
+    # elim row
+    for j in range(3):
+        if j != y1:
+            for c in range(3):
+                new_val = board[x1][j][x2][c].elim(val)
+                if new_val != 0:
+                    board_nums[x1][j][x2][c] = new_val
+                    queue.append((x1, j, x2, c, new_val))
 
-    #elim col
-    for big_row in range(3):
-        if big_row != x1:
-            for row in range(3):
-                if board[big_row][y1][row][y2].elim(check_val) != 0:
-                    queue.append((big_row, y1, row, y2))
+    # elim col
+    for i in range(3):
+        if i != x1:
+            for r in range(3):
+                new_val = board[i][y1][r][y2].elim(val)
+                if new_val != 0:
+                    board_nums[i][y1][r][y2] = new_val
+                    queue.append((i, y1, r, y2, new_val))
 
     queue.pop(0)
 
-print(board)
+# for i in range(3):
+#     for j in range(3):
+#         for r in range(3):
+#             for c in range(3):
+#                 print(board[i][j][r][c].solved)
+
+# print(board_nums)
+
+for i in range(3):
+    for r in range(3):
+        print(board_nums[i][0][r], board_nums[i][1][r], board_nums[i][2][r])
