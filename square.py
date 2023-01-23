@@ -7,6 +7,8 @@ class Square:
             self.pbls = []
 
     def elim(self, num):
+        if self.solved == num:
+            return -1
         try:
             self.pbls.remove(num)
         except:
@@ -17,3 +19,8 @@ class Square:
             self.pbls.clear()
             return self.solved
         return 0
+
+    def solve(self, num):
+        self.solved = num
+        self.pbls.clear()
+
