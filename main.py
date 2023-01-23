@@ -6,6 +6,7 @@ import layer as la
 import pixel
 import contextlib
 import random
+import cv2 as cv
 
 with contextlib.redirect_stdout(None):
     import pygame
@@ -23,6 +24,14 @@ from pygame.locals import (
     K_ESCAPE,
     KEYDOWN
 )
+
+img = cv.imread('medium.png')
+assert img is not None, "file could not be read, check with os.path.exists()"
+cv.imshow('image window', img)
+# add wait key. window waits until user presses a key
+cv.waitKey(0)
+# and finally destroy/close all open windows
+cv.destroyAllWindows()
 
 
 def create_one_dimensional(arr):
@@ -51,7 +60,7 @@ l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-WIDTH, HEIGHT = 700, 700
+WIDTH, HEIGHT = 900, 900
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
@@ -66,15 +75,15 @@ twoD_pixels = []
 outline_coords = []
 borders = []
 row = 0
-left = 700
+left = WIDTH
 right = 0
-top = 700
+top = HEIGHT
 bottom = 0
 recursion = False
 
 x = 0
 y = 0
-outline_array = [[[-1] for i in range(700)] for j in range(700)]
+outline_array = [[[-1] for i in range(WIDTH)] for j in range(HEIGHT)]
 num_index = 0
 
 
@@ -100,7 +109,7 @@ def process_image():
 
     global outline_array
     global num_index
-    outline_array = [[[-1] for _ in range(700)] for _ in range(700)]
+    outline_array = [[[-1] for _ in range(WIDTH)] for _ in range(HEIGHT)]
     num_index = 0
 
     for r in range(WIDTH):
@@ -108,6 +117,8 @@ def process_image():
         twoD_pixels.append([])
         for c in range(HEIGHT):
             pix = screen.get_at((r, c))[0]
+            # pix = img[r, c, 0]
+            # print(screen.get_at((r, c))[0], img[r, c, 0])
             pixels[r].append(pix)
             twoD_pixels[r].append(pixel.Pixel(pix))
 
@@ -145,9 +156,9 @@ def process_image():
     x = 0
     y = 0
 
-    for r in range(0, 700):
+    for r in range(0, WIDTH):
         inside = False
-        for c in range(0, 700):
+        for c in range(0, HEIGHT):
             if len(outline_array[c][r]) >= 2:
                 print(len(outline_array[c][r]))
             switch = outline_array[c][r][0] != -1
@@ -161,7 +172,7 @@ def process_image():
                     row = c
                     left = r
                     right = 0
-                    top = 700
+                    top = HEIGHT
                     bottom = 0
                     if outline_array[c][r][0] == -1:
                         outline_array[c][r][0] = num_index
@@ -229,9 +240,9 @@ def process_image():
 
         filtered_pixels = [row[:] for row in pixels]
 
-        for r in range(0, 700):
+        for r in range(0, WIDTH):
             inside = False
-            for c in range(0, 700):
+            for c in range(0, HEIGHT):
                 switch = outline_array[c][r][0] == i
                 if not inside:
                     if switch:
@@ -393,10 +404,10 @@ def draw_start(r, c):
 
 
 def draw_grid():
-    for i in range(28):
-        pygame.draw.line(screen, (200, 200, 200), (i * 25, 0), (i * 25, 700))
-    for j in range(28):
-        pygame.draw.line(screen, (200, 200, 200), (0, j * 25), (700, j * 25))
+    for i in range(WIDTH // 25):
+        pygame.draw.line(screen, (200, 200, 200), (i * 25, 0), (i * 25, HEIGHT))
+    for j in range(HEIGHT // 25):
+        pygame.draw.line(screen, (200, 200, 200), (0, j * 25), (WIDTH, j * 25))
 
 
 def analyze(img):
@@ -418,20 +429,21 @@ def show_pixelated(num):
     screen.fill((255, 255, 255))
     i = 0
 
-    for r in range(0, 700, 25):
-        for c in range(0, 700, 25):
+    for r in range(28):
+        for c in range(28):
+
             grayscale_value = max(0, 255 - processed_arr[num][i] * 255)
             if grayscale_value != 255:
                 pygame.draw.rect(screen, (grayscale_value, grayscale_value, grayscale_value),
-                                 (c + 1, r + 1, 25 - 1, 25 - 1))
+                                 (c * WIDTH // 28 + 1, r * HEIGHT // 28 + 1, WIDTH // 28 - 1, HEIGHT // 28 - 1))
             i += 1
 
 
 def show_image(num):
     screen.fill((255, 255, 255))
 
-    for r in range(0, 700):
-        for c in range(0, 700):
+    for r in range(0, WIDTH):
+        for c in range(0, HEIGHT):
             if drawn_arr[num][c][r] != 255:
                 pygame.draw.rect(screen, (0, 0, 0), (c, r, 1, 1))
 
