@@ -25,6 +25,8 @@ from pygame.locals import (
     KEYDOWN
 )
 
+sys.setrecursionlimit(30000)
+
 img = cv.imread('medium.png')
 assert img is not None, "file could not be read, check with os.path.exists()"
 cv.imshow('image window', img)
@@ -60,7 +62,7 @@ l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-WIDTH, HEIGHT = 900, 900
+WIDTH, HEIGHT = 560, 560
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
@@ -88,7 +90,6 @@ num_index = 0
 
 
 def process_image():
-    sys.setrecursionlimit(30000)
     pixels = []
     pxlss = []
     twoD_pixels.clear()
@@ -278,7 +279,7 @@ def process_image():
         scale_constant = WIDTH * (1 - scale) / 2
         # print(scale, scale_constant)
 
-        pixel_size = 25
+        pixel_size = WIDTH // 28
         pixelated = np.zeros((28, 28))
         total_shade = 0
         for r in range(28):
@@ -404,10 +405,10 @@ def draw_start(r, c):
 
 
 def draw_grid():
-    for i in range(WIDTH // 25):
-        pygame.draw.line(screen, (200, 200, 200), (i * 25, 0), (i * 25, HEIGHT))
-    for j in range(HEIGHT // 25):
-        pygame.draw.line(screen, (200, 200, 200), (0, j * 25), (WIDTH, j * 25))
+    for i in range(28):
+        pygame.draw.line(screen, (200, 200, 200), (i * WIDTH // 28, 0), (i * WIDTH // 28, HEIGHT))
+    for j in range(28):
+        pygame.draw.line(screen, (200, 200, 200), (0, j * HEIGHT // 28), (WIDTH, j * HEIGHT // 28))
 
 
 def analyze(img):
