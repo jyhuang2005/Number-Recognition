@@ -7,6 +7,7 @@ import pixel
 import contextlib
 import random
 import cv2 as cv
+from PIL import Image
 
 with contextlib.redirect_stdout(None):
     import pygame
@@ -35,6 +36,12 @@ cv.waitKey(0)
 # and finally destroy/close all open windows
 cv.destroyAllWindows()
 
+im = Image.open('dead_parrot.jpg') # Can be many different formats.
+pix = im.load()
+print(im.size)  # Get the width and hight of the image for iterating over
+print(pix[x,y])  # Get the RGBA Value of the a pixel of an image
+pix[x,y] = value  # Set the RGBA Value of the image (tuple)
+im.save('alive_parrot.png')  # Save the modified pixels as .png
 
 def create_one_dimensional(arr):
     return np.array(arr).ravel()
