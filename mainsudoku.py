@@ -28,20 +28,25 @@ from pygame.locals import (
 
 sys.setrecursionlimit(30000)
 
-img = cv.imread('medium.png')
-assert img is not None, "file could not be read, check with os.path.exists()"
-cv.imshow('image window', img)
-# add wait key. window waits until user presses a key
-cv.waitKey(0)
-# and finally destroy/close all open windows
-cv.destroyAllWindows()
+# img = cv.imread('medium.png')
+# assert img is not None, "file could not be read, check with os.path.exists()"
+# cv.imshow('image window', img)
+# # add wait key. window waits until user presses a key
+# cv.waitKey(0)
+# # and finally destroy/close all open windows
+# cv.destroyAllWindows()
 
-im = Image.open('dead_parrot.jpg') # Can be many different formats.
+im = Image.open('medium.png')  # Can be many different formats.
 pix = im.load()
-print(im.size)  # Get the width and hight of the image for iterating over
-print(pix[x,y])  # Get the RGBA Value of the a pixel of an image
-pix[x,y] = value  # Set the RGBA Value of the image (tuple)
-im.save('alive_parrot.png')  # Save the modified pixels as .png
+im.show()
+print(im.size)  # Get the width and height of the image for iterating over
+# rgb_im = im.convert('RGB')
+# r, g, b = rgb_im.getpixel((1, 1))
+# print(r, g, b)
+
+# value = pix[x,y] # Set the RGBA Value of the image (tuple)
+# im.save('alive_parrot.png')  # Save the modified pixels as .png
+
 
 def create_one_dimensional(arr):
     return np.array(arr).ravel()
@@ -69,7 +74,7 @@ l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-WIDTH, HEIGHT = 560, 560
+WIDTH, HEIGHT = 852, 852
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
@@ -94,6 +99,29 @@ x = 0
 y = 0
 outline_array = [[[-1] for i in range(WIDTH)] for j in range(HEIGHT)]
 num_index = 0
+
+
+def to_grayscale():
+    grayscale_array = [[[-1] for i in range(im.size[0])] for j in range(im.size[1])]
+
+    rgb_im = im.convert('RGB')
+    for i in range(len(grayscale_array)):
+        for j in range(len(grayscale_array[0])):
+            r, g, b = rgb_im.getpixel((i, j))
+            gs = (r + g + b) / 3
+            if i < 100 and j < 100:
+                print(gs, i, j)
+            if gs <= 75:
+                gs = 0
+            else:
+                gs = 255
+            grayscale_array[i][j] = gs
+
+    return grayscale_array
+
+
+grayscale_im = to_grayscale()
+# print(grayscale_im)
 
 
 def process_image():
@@ -124,11 +152,14 @@ def process_image():
         pixels.append([])
         twoD_pixels.append([])
         for c in range(HEIGHT):
-            pix = screen.get_at((r, c))[0]
+            # pix = screen.get_at((r, c))[0]
+            pix = grayscale_im[r][c]
             # pix = img[r, c, 0]
             # print(screen.get_at((r, c))[0], img[r, c, 0])
             pixels[r].append(pix)
             twoD_pixels[r].append(pixel.Pixel(pix))
+    # print(np.array(pixels).shape, "shape1")
+    # print(pixels)
 
     # while vert < 700:
     #     for r in range(vert, 700):
