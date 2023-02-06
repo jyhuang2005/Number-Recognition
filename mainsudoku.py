@@ -40,12 +40,6 @@ im = Image.open('medium.png')  # Can be many different formats.
 pix = im.load()
 im.show()
 print(im.size)  # Get the width and height of the image for iterating over
-# rgb_im = im.convert('RGB')
-# r, g, b = rgb_im.getpixel((1, 1))
-# print(r, g, b)
-
-# value = pix[x,y] # Set the RGBA Value of the image (tuple)
-# im.save('alive_parrot.png')  # Save the modified pixels as .png
 
 
 def create_one_dimensional(arr):
@@ -74,7 +68,7 @@ l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-WIDTH, HEIGHT = 852, 852
+WIDTH, HEIGHT = im.size
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
@@ -100,6 +94,8 @@ y = 0
 outline_array = [[[-1] for i in range(WIDTH)] for j in range(HEIGHT)]
 num_index = 0
 
+amount_black = 75
+
 
 def to_grayscale():
     grayscale_array = [[[-1] for i in range(im.size[0])] for j in range(im.size[1])]
@@ -109,9 +105,7 @@ def to_grayscale():
         for j in range(len(grayscale_array[0])):
             r, g, b = rgb_im.getpixel((i, j))
             gs = (r + g + b) / 3
-            if i < 100 and j < 100:
-                print(gs, i, j)
-            if gs <= 75:
+            if gs <= amount_black:
                 gs = 0
             else:
                 gs = 255
@@ -120,7 +114,6 @@ def to_grayscale():
     return grayscale_array
 
 
-grayscale_im = to_grayscale()
 # print(grayscale_im)
 
 
@@ -147,6 +140,7 @@ def process_image():
     global num_index
     outline_array = [[[-1] for _ in range(WIDTH)] for _ in range(HEIGHT)]
     num_index = 0
+    grayscale_im = to_grayscale()
 
     for r in range(WIDTH):
         pixels.append([])
@@ -512,7 +506,7 @@ while running:
         current_x = pygame.mouse.get_pos()[0]
         current_y = pygame.mouse.get_pos()[1]
         if event.type == KEYDOWN and not pygame.mouse.get_pressed()[0]:
-            if event.key == K_SPACE and not (viewing_orig or viewing_pix):
+            if event.key == K_SPACE:
                 images, orig_image = process_image()
                 num_images_arr.append(len(images))
                 if images is not None:
@@ -526,6 +520,8 @@ while running:
                     orig_guess_arr.append(multi_digit)
                 screen.fill((255, 255, 255))
                 first = True
+                viewing_orig = True
+                show_image(view_num)
             elif event.key == K_v:
                 if not viewing_orig and len(processed_arr) > 0:
                     show_image(view_num)
@@ -652,7 +648,7 @@ while running:
                 for g in orig_guess_arr[view_num]:
                     guess += str(g)
                 pygame.display.set_caption(
-                    f'Viewing {view_num + 1}/{len(num_images_arr)} - Guess: {guess}')
+                    f'Viewing {view_num + 1}/{len(num_images_arr)} - Guess: {guess} | Amount Black: {amount_black}')
             elif viewing_pix:
                 pygame.display.set_caption(
                     f'Viewing {view_pix_num + 1}/{len(processed_arr)} - Guess: {guess_arr[view_pix_num]}')
@@ -673,13 +669,23 @@ while running:
                 first = False
         elif event.type == QUIT:
             running = False
-        elif event.type == pygame.MOUSEWHEEL and not (viewing_orig or viewing_pix or viewing_outline):
-            stroke_size += event.y
-            if stroke_size > 500:
-                stroke_size = 500
-            elif stroke_size < 1:
-                stroke_size = 1
-            pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
+        elif event.type == pygame.MOUSEWHEEL:
+            if not (viewing_orig or viewing_pix or viewing_outline):
+                stroke_size += event.y
+                if stroke_size > 500:
+                    stroke_size = 500
+                elif stroke_size < 1:
+                    stroke_size = 1
+                pygame.display.set_caption(f'Almighty Drawing Canvas - Stroke Size: {stroke_size}')
+            elif viewing_orig:
+                amount_black += event.y
+                if amount_black > 255:
+                    amount_black = 255
+                elif amount_black < 0:
+                    amount_black = 0
+                pygame.display.set_caption(
+                    f'Viewing {view_num + 1}/{len(num_images_arr)} - Guess: {guess} | Amount Black: {amount_black}')
+
         previous_x, previous_y = current_x, current_y
 
     pygame.display.flip()
