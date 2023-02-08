@@ -265,6 +265,12 @@ def process_image():
     #                 max_y = c + 1
     # print(min_x, max_x, min_y, max_y)
 
+    box_height = HEIGHT / 9
+    box_width = WIDTH / 9
+    for i in range(3):
+        for j in range(3):
+            borders.append([int(i * box_height) + 22, int((i + 1) * box_height) - 23, int(j * box_width) + 22, int((j + 1) * box_width) - 23])
+
     print(borders)
     for i in range(0, len(borders)):
         border = borders[i]
@@ -279,93 +285,81 @@ def process_image():
 
         filtered_pixels = [row[:] for row in pixels]
 
-        for r in range(0, WIDTH):
-            inside = False
-            for c in range(0, HEIGHT):
-                switch = outline_array[c][r][0] == i
-                if not inside:
-                    if switch:
-                        inside = True
-                        switch = False
-                    else:
-                        filtered_pixels[r][c] = 255
-                if inside:
-                    pix = pixels[r][c]
+        for r in range(min_x, max_x):
+            for c in range(min_y, max_y):
+                pix = pixels[r][c]
 
-                    # finding mean location of pixels
-                    if pix != 255:
-                        pix_color = (255 - pix) / 255
-                        r_sum += r * pix_color
-                        c_sum += c * pix_color
-                        pix_count += 1
-                        color_sum += pix_color
-
-                    if switch or len(outline_array[c][r]) % 2 == 0:
-                        inside = False
+                # finding mean location of pixels
+                if pix != 255:
+                    pix_color = (255 - pix) / 255
+                    r_sum += r * pix_color
+                    c_sum += c * pix_color
+                    pix_count += 1
+                    color_sum += pix_color
 
         need_fix = 0
-        if pix_count == 0:
-            return None, None
-        elif color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.15:
-            need_fix = 3
+        if pix_count != 0:
+            # pix_count = 1
+            if color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.15:
+                need_fix = 3
 
-        center_x = r_sum // pix_count - WIDTH / 2
-        center_y = c_sum // pix_count - HEIGHT / 2
+            center_x = r_sum // pix_count - WIDTH / 2
+            center_y = c_sum // pix_count - HEIGHT / 2
 
-        # print(max(max_x - min_x, max_y - min_y))
-        scale = max(max_x - min_x, max_y - min_y) / ((20 - need_fix) * WIDTH / 28)
-        scale_constant = WIDTH * (1 - scale) / 2
-        # print(scale, scale_constant)
+            # print(max(max_x - min_x, max_y - min_y))
+            scale = max(max_x - min_x, max_y - min_y) / ((20 - need_fix) * WIDTH / 28)
+            scale_constant = WIDTH * (1 - scale) / 2
+            # print(scale, scale_constant)
 
-        pixel_size = WIDTH // 28
-        pixelated = np.zeros((28, 28))
-        total_shade = 0
-        for r in range(28):
-            for c in range(28):
-                av_color = 0
-                for a in range(r * pixel_size, (r + 1) * pixel_size):
-                    for b in range(c * pixel_size, (c + 1) * pixel_size):
-                        true_a = round((a + 0.5) * scale + scale_constant + center_x + 0.5)
-                        true_b = round((b + 0.5) * scale + scale_constant + center_y + 0.5)
-                        # if r == 6 and c == 6:
-                        #     print(center_x + WIDTH // 2, true_a)
-                        # if r == 4 or r == 23:
-                        #     print(r, c, true_a, true_b)
-                        if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
-                            av_color += filtered_pixels[true_a][true_b]
-                        else:
-                            av_color += 255
-
-                adjusted_shade = (255 - (av_color / (pixel_size ** 2))) / 255
-                pixelated[c][r] = adjusted_shade
-                # twoD_pixelated[c][r] = pixel.Pixel(adjusted_shade)
-                total_shade += adjusted_shade
-
-        # needs fix: after shade adjustment, number too big
-
-        if need_fix == 3:
+            pixel_size = WIDTH // 28
+            pixelated = np.zeros((28, 28))
+            total_shade = 0
             for r in range(28):
                 for c in range(28):
-                    if pixelated[r][c] != 0:
-                        pixelated[r][c] = 1
+                    av_color = 0
+                    for a in range(r * pixel_size, (r + 1) * pixel_size):
+                        for b in range(c * pixel_size, (c + 1) * pixel_size):
+                            true_a = round((a + 0.5) * scale + scale_constant + center_x + 0.5)
+                            true_b = round((b + 0.5) * scale + scale_constant + center_y + 0.5)
+                            # if r == 6 and c == 6:
+                            #     print(center_x + WIDTH // 2, true_a)
+                            # if r == 4 or r == 23:
+                            #     print(r, c, true_a, true_b)
+                            if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
+                                av_color += filtered_pixels[true_a][true_b]
+                            else:
+                                av_color += 255
 
-            for r in range(28):
-                for c in range(28):
-                    if pixelated[r][c] > 0.9:
-                        if c > 0 and pixelated[r][c - 1] == 0:
-                            pixelated[r][c - 1] = 0.5
-                        if c < 27 and pixelated[r][c + 1] == 0:
-                            pixelated[r][c + 1] = 0.5
-                        if r > 0 and pixelated[r - 1][c] == 0:
-                            pixelated[r - 1][c] = 0.5
-                        if r < 27 and pixelated[r + 1][c] == 0:
-                            pixelated[r + 1][c] = 0.5
+                    adjusted_shade = (255 - (av_color / (pixel_size ** 2))) / 255
+                    pixelated[c][r] = adjusted_shade
+                    # twoD_pixelated[c][r] = pixel.Pixel(adjusted_shade)
+                    total_shade += adjusted_shade
 
-        pxls = []
-        for pxl in create_one_dimensional(pixelated):
-            pxls.append([pxl])
-        pxlss.append(np.array(pxls))
+            # needs fix: after shade adjustment, number too big
 
+            if need_fix == 3:
+                for r in range(28):
+                    for c in range(28):
+                        if pixelated[r][c] != 0:
+                            pixelated[r][c] = 1
+
+                for r in range(28):
+                    for c in range(28):
+                        if pixelated[r][c] > 0.9:
+                            if c > 0 and pixelated[r][c - 1] == 0:
+                                pixelated[r][c - 1] = 0.5
+                            if c < 27 and pixelated[r][c + 1] == 0:
+                                pixelated[r][c + 1] = 0.5
+                            if r > 0 and pixelated[r - 1][c] == 0:
+                                pixelated[r - 1][c] = 0.5
+                            if r < 27 and pixelated[r + 1][c] == 0:
+                                pixelated[r + 1][c] = 0.5
+
+            pxls = []
+            for pxl in create_one_dimensional(pixelated):
+                pxls.append([pxl])
+            pxlss.append(np.array(pxls))
+            print(0)
     return pxlss, pixels
 
 
