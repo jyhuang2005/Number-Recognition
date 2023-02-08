@@ -6,7 +6,6 @@ import layer as la
 import pixel
 import contextlib
 import random
-import cv2 as cv
 
 with contextlib.redirect_stdout(None):
     import pygame
@@ -26,14 +25,6 @@ from pygame.locals import (
 )
 
 sys.setrecursionlimit(30000)
-
-img = cv.imread('medium.png')
-assert img is not None, "file could not be read, check with os.path.exists()"
-cv.imshow('image window', img)
-# add wait key. window waits until user presses a key
-cv.waitKey(0)
-# and finally destroy/close all open windows
-cv.destroyAllWindows()
 
 
 def create_one_dimensional(arr):
@@ -62,7 +53,7 @@ l1 = la.Layer(100, weights=get_weights(1), biases=np.rot90([get_biases(1)], 3))
 l2 = la.Layer(100, l1, weights=get_weights(2), biases=np.rot90([get_biases(2)], 3))
 l3 = la.Layer(10, l2, weights=get_weights(3), biases=np.rot90([get_biases(3)], 3))
 
-WIDTH, HEIGHT = 560, 560
+WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen.fill((255, 255, 255))
 
@@ -118,7 +109,6 @@ def process_image():
         twoD_pixels.append([])
         for c in range(HEIGHT):
             pix = screen.get_at((r, c))[0]
-            # pix = img[r, c, 0]
             # print(screen.get_at((r, c))[0], img[r, c, 0])
             pixels[r].append(pix)
             twoD_pixels[r].append(pixel.Pixel(pix))
