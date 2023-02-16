@@ -94,7 +94,7 @@ y = 0
 outline_array = [[[-1] for i in range(WIDTH)] for j in range(HEIGHT)]
 num_index = 0
 
-amount_black = 75
+amount_black = 214
 
 
 def to_grayscale():
@@ -263,25 +263,41 @@ def process_image():
     box_width = WIDTH / 9
     for i in range(3):
         for j in range(3):
-            borders.append([int(i * box_height) + 22, int((i + 1) * box_height) - 23, int(j * box_width) + 22, int((j + 1) * box_width) - 23])
+            borders.append([int(i * box_height) + 15, int((i + 1) * box_height) - 16, int(j * box_width) + 15, int((j + 1) * box_width) - 16])
 
     print(borders)
     for i in range(0, len(borders)):
         border = borders[i]
-        min_y = border[0]
-        max_y = border[1] + 1
-        min_x = border[2]
-        max_x = border[3] + 1
+        min_y = HEIGHT
+        max_y = 0
+        min_x = WIDTH
+        max_x = 0
         r_sum = 0
         c_sum = 0
         pix_count = 0
         color_sum = 0
 
-        filtered_pixels = [row[:] for row in pixels]
+        filtered_pixels = []
+        for i in range(len(pixels)):
+            filtered_pixels.append([])
+            for j in range(len(pixels[0])):
+                if border[2] <= i <= border[3] + 1 and border[0] <= j <= border[1] + 1:
+                    filtered_pixels[i].append(pixels[i][j])
+                    if pixels[i][j] < 255:
+                        if i < min_x:
+                            min_x = i
+                        if i > max_x:
+                            max_x = i
+                        if j < min_y:
+                            min_y = j
+                        if j > max_y:
+                            max_y = j
+                else:
+                    filtered_pixels[i].append(255)
 
         for r in range(min_x, max_x):
             for c in range(min_y, max_y):
-                pix = pixels[r][c]
+                pix = filtered_pixels[r][c]
 
                 # finding mean location of pixels
                 if pix != 255:
@@ -291,17 +307,12 @@ def process_image():
                     pix_count += 1
                     color_sum += pix_color
 
-        need_fix = 0
         if pix_count != 0:
-            # pix_count = 1
-            if color_sum / pow(max(max_x - min_x, max_y - min_y), 2) < 0.15:
-                need_fix = 3
-
             center_x = r_sum // pix_count - WIDTH / 2
             center_y = c_sum // pix_count - HEIGHT / 2
 
             # print(max(max_x - min_x, max_y - min_y))
-            scale = max(max_x - min_x, max_y - min_y) / ((20 - need_fix) * WIDTH / 28)
+            scale = max(max_x - min_x, max_y - min_y) / (20 * WIDTH / 28)
             scale_constant = WIDTH * (1 - scale) / 2
             # print(scale, scale_constant)
 
@@ -320,7 +331,10 @@ def process_image():
                             # if r == 4 or r == 23:
                             #     print(r, c, true_a, true_b)
                             if 0 < true_a < WIDTH and 0 < true_b < HEIGHT:
-                                av_color += filtered_pixels[true_a][true_b]
+                                try:
+                                    av_color += filtered_pixels[true_a][true_b]
+                                except:
+                                    1+1
                             else:
                                 av_color += 255
 
@@ -328,26 +342,6 @@ def process_image():
                     pixelated[c][r] = adjusted_shade
                     # twoD_pixelated[c][r] = pixel.Pixel(adjusted_shade)
                     total_shade += adjusted_shade
-
-            # needs fix: after shade adjustment, number too big
-
-            if need_fix == 3:
-                for r in range(28):
-                    for c in range(28):
-                        if pixelated[r][c] != 0:
-                            pixelated[r][c] = 1
-
-                for r in range(28):
-                    for c in range(28):
-                        if pixelated[r][c] > 0.9:
-                            if c > 0 and pixelated[r][c - 1] == 0:
-                                pixelated[r][c - 1] = 0.5
-                            if c < 27 and pixelated[r][c + 1] == 0:
-                                pixelated[r][c + 1] = 0.5
-                            if r > 0 and pixelated[r - 1][c] == 0:
-                                pixelated[r - 1][c] = 0.5
-                            if r < 27 and pixelated[r + 1][c] == 0:
-                                pixelated[r + 1][c] = 0.5
 
             pxls = []
             for pxl in create_one_dimensional(pixelated):
